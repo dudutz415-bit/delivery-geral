@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Geral - Apresentacao Interativa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+:root{--primary:#FF4D00;--primary-dark:#E04400;--primary-light:#FF6B2C;--dark:#0A0A0A;--dark2:#141414;--dark3:#1E1E1E;--dark4:#2A2A2A;--white:#fff;--white2:rgba(255,255,255,.7);--white3:rgba(255,255,255,.4);--green:#22C55E;--blue:#3B82F6;--yellow:#FBBF24;--radius:20px}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--white);-webkit-font-smoothing:antialiased}
+
+/* APP CONTAINER */
+.app{height:100vh;display:flex;flex-direction:column;max-width:100%;position:relative;overflow:hidden}
+
+/* TOP BAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--dark2);border-bottom:1px solid var(--dark4);flex-shrink:0;z-index:10}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-logo{width:36px;height:36px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.topbar-logo svg{width:20px;height:20px}
+.topbar-title{font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700}
+.topbar-sub{font-size:.72rem;color:var(--white3)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.slide-counter{font-family:'Sora',sans-serif;font-size:.82rem;font-weight:600;color:var(--white3)}
+.slide-counter strong{color:var(--primary)}
+
+/* PROGRESS */
+.progress-bar{height:3px;background:var(--dark3);flex-shrink:0}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-light));transition:width .5s ease;border-radius:0 3px 3px 0}
+
+/* SLIDE AREA */
+.slides-wrap{flex:1;position:relative;overflow:hidden}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px;opacity:0;transform:translateX(60px);transition:all .5s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.slide.active{opacity:1;transform:translateX(0);pointer-events:auto}
+.slide.exit-left{opacity:0;transform:translateX(-60px)}
+
+/* SLIDE CONTENT */
+.slide-icon{font-size:4rem;margin-bottom:20px;animation:floatIcon 3s ease-in-out infinite}
+@keyframes floatIcon{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.slide-badge{display:inline-flex;align-items:center;gap:6px;background:var(--dark3);border:1px solid var(--dark4);padding:6px 14px;border-radius:20px;font-size:.72rem;font-weight:600;color:var(--primary);margin-bottom:16px}
+.slide h1{font-family:'Sora',sans-serif;font-size:1.8rem;font-weight:800;text-align:center;line-height:1.2;letter-spacing:-.02em;margin-bottom:12px}
+.slide h1 span{color:var(--primary)}
+.slide p{text-align:center;color:var(--white2);font-size:.95rem;line-height:1.7;max-width:520px}
+.slide-features{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:24px;width:100%;max-width:460px}
+.feat{background:var(--dark3);border:1px solid var(--dark4);border-radius:14px;padding:16px;text-align:center;transition:all .3s ease}
+.feat:hover{border-color:var(--primary);transform:translateY(-3px)}
+.feat-icon{font-size:1.6rem;margin-bottom:6px;display:block}
+.feat-title{font-family:'Sora',sans-serif;font-size:.82rem;font-weight:700}
+.feat-sub{font-size:.68rem;color:var(--white3);margin-top:2px}
+
+/* 3-col features */
+.slide-features-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:24px;width:100%;max-width:520px}
+.feat3{background:var(--dark3);border:1px solid var(--dark4);border-radius:14px;padding:14px 8px;text-align:center}
+.feat3-icon{font-size:1.4rem;margin-bottom:4px;display:block}
+.feat3-title{font-family:'Sora',sans-serif;font-size:.75rem;font-weight:700}
+.feat3-sub{font-size:.62rem;color:var(--white3);margin-top:2px}
+
+/* Category pills */
+.cat-pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px;max-width:520px}
+.cat-pill{background:var(--dark3);border:1px solid var(--dark4);border-radius:20px;padding:6px 14px;font-size:.78rem;display:flex;align-items:center;gap:6px;transition:all .3s ease}
+.cat-pill:hover{border-color:var(--primary);background:rgba(255,77,0,.08)}
+
+/* Stats row */
+.stats-row{display:flex;gap:16px;margin-top:24px}
+.stat-item{text-align:center;flex:1}
+.stat-val{font-family:'Sora',sans-serif;font-size:1.6rem;font-weight:800;color:var(--primary)}
+.stat-lbl{font-size:.7rem;color:var(--white3);margin-top:2px}
+
+/* Mock phone */
+.phone-mock{width:220px;height:400px;background:var(--dark3);border:2px solid var(--dark4);border-radius:28px;padding:12px;margin-top:20px;position:relative;overflow:hidden;flex-shrink:0}
+.phone-mock::before{content:'';position:absolute;top:6px;left:50%;transform:translateX(-50%);width:60px;height:4px;background:var(--dark4);border-radius:4px;z-index:1}
+.phone-screen{width:100%;height:100%;border-radius:18px;overflow:hidden;background:var(--dark2);display:flex;flex-direction:column}
+.phone-header{background:var(--primary);padding:16px 12px 10px;text-align:center}
+.phone-header h3{font-family:'Sora',sans-serif;font-size:.7rem;font-weight:700;color:white}
+.phone-body{flex:1;padding:10px;overflow:hidden}
+.phone-item{background:var(--dark4);border-radius:8px;padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px;font-size:.65rem}
+.phone-item-emoji{font-size:1rem}
+.phone-item-price{margin-left:auto;font-family:'Sora',sans-serif;font-weight:700;color:var(--green);font-size:.65rem}
+
+/* Horizontal scroll demo */
+.demo-scroll{display:flex;gap:10px;margin-top:20px;overflow:hidden;max-width:520px}
+.demo-card{flex:0 0 140px;background:var(--dark3);border:1px solid var(--dark4);border-radius:14px;padding:14px 10px;text-align:center}
+.demo-card-emoji{font-size:1.6rem;margin-bottom:6px;display:block}
+.demo-card-name{font-size:.78rem;font-weight:600}
+.demo-card-sub{font-size:.65rem;color:var(--white3);margin-top:2px}
+
+/* BOTTOM CONTROLS */
+.controls{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--dark2);border-top:1px solid var(--dark4);flex-shrink:0;z-index:10}
+.ctrl-btn{padding:12px 28px;border:none;border-radius:14px;font-family:'Sora',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .25s ease;display:flex;align-items:center;gap:8px}
+.ctrl-prev{background:var(--dark4);color:var(--white)}
+.ctrl-prev:hover{background:var(--dark3)}
+.ctrl-next{background:var(--primary);color:white}
+.ctrl-next:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 4px 16px rgba(255,77,0,.3)}
+.ctrl-dots{display:flex;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--dark4);transition:all .3s ease;cursor:pointer}
+.dot.active{background:var(--primary);width:24px;border-radius:4px}
+.dot:hover{background:var(--white3)}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.slide.active .slide-icon{animation:fadeUp .5s ease .1s both,floatIcon 3s ease-in-out .6s infinite}
+.slide.active .slide-badge{animation:fadeUp .5s ease .15s both}
+.slide.active h1{animation:fadeUp .5s ease .2s both}
+.slide.active p{animation:fadeUp .5s ease .3s both}
+.slide.active .slide-features,.slide.active .slide-features-3,.slide.active .cat-pills,.slide.active .stats-row,.slide.active .demo-scroll,.slide.active .phone-mock{animation:fadeUp .5s ease .4s both}
+
+/* Responsive */
+@media(max-width:600px){
+    .slide h1{font-size:1.4rem}
+    .slide p{font-size:.88rem}
+    .slide-features{grid-template-columns:1fr 1fr;gap:8px}
+    .slide-features-3{grid-template-columns:repeat(3,1fr);gap:6px}
+    .stats-row{gap:8px}
+    .stat-val{font-size:1.2rem}
+    .phone-mock{width:180px;height:320px}
+}
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="topbar-logo"><svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FF4D00"/><path d="M10 28V15l10-6 10 6v13l-10 6-10-6z" fill="#fff" opacity=".9"/><circle cx="20" cy="21" r="3" fill="#FF4D00"/></svg></div>
+            <div><div class="topbar-title">Delivery Geral</div><div class="topbar-sub">Apresentacao Interativa</div></div>
+        </div>
+        <div class="topbar-right">
+            <div class="slide-counter"><strong id="current-num">1</strong> / <span id="total-num">14</span></div>
+        </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+    <!-- SLIDES -->
+    <div class="slides-wrap" id="slides-wrap">
+
+        <!-- SLIDE 0: CAPA -->
+        <div class="slide active" data-index="0">
+            <div class="slide-icon">🛒</div>
+            <div class="slide-badge">APRESENTACAO COMPLETA</div>
+            <h1>Delivery <span>Geral</span></h1>
+            <p>Tudo que voce precisa, entregue na sua porta. Conheca cada funcionalidade do app que conecta clientes, lojas e entregadores.</p>
+            <div class="stats-row">
+                <div class="stat-item"><div class="stat-val">46</div><div class="stat-lbl">Categorias</div></div>
+                <div class="stat-item"><div class="stat-val">55</div><div class="stat-lbl">Lojas</div></div>
+                <div class="stat-item"><div class="stat-val">371</div><div class="stat-lbl">Produtos</div></div>
+                <div class="stat-item"><div class="stat-val">3</div><div class="stat-lbl">Paineis</div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 1: VISAO GERAL -->
+        <div class="slide" data-index="1">
+            <div class="slide-icon">🌍</div>
+            <div class="slide-badge">VISAO GERAL</div>
+            <h1>3 paineis, <span>1 plataforma</span></h1>
+            <p>O Delivery Geral conecta 3 tipos de usuarios em um ecossistema completo:</p>
+            <div class="slide-features-3">
+                <div class="feat3"><span class="feat3-icon">👤</span><div class="feat3-title">Cliente</div><div class="feat3-sub">Compra e recebe em casa</div></div>
+                <div class="feat3"><span class="feat3-icon">🏍️</span><div class="feat3-title">Entregador</div><div class="feat3-sub">Faz entregas e ganha</div></div>
+                <div class="feat3"><span class="feat3-icon">🏪</span><div class="feat3-title">Lojista</div><div class="feat3-sub">Vende seus produtos</div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: HOME DO CLIENTE -->
+        <div class="slide" data-index="2">
+            <div class="slide-icon">📱</div>
+            <div class="slide-badge">APP DO CLIENTE</div>
+            <h1>Home <span>intuitiva</span></h1>
+            <p>Ao abrir o app, o cliente encontra tudo organizado: barra de busca, categorias, ofertas do dia, lojas populares e promocoes da cidade.</p>
+            <div class="slide-features">
+                <div class="feat"><span class="feat-icon">🔍</span><div class="feat-title">Busca inteligente</div><div class="feat-sub">Produtos, lojas e categorias</div></div>
+                <div class="feat"><span class="feat-icon">📍</span><div class="feat-title">Endereco salvo</div><div class="feat-sub">Altere a qualquer momento</div></div>
+                <div class="feat"><span class="feat-icon">🔥</span><div class="feat-title">Ofertas do dia</div><div class="feat-sub">Ate 50% de desconto</div></div>
+                <div class="feat"><span class="feat-icon">⭐</span><div class="feat-title">Lojas populares</div><div class="feat-sub">As melhores avaliadas</div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: CATEGORIAS -->
+        <div class="slide" data-index="3">
+            <div class="slide-icon">🗂️</div>
+            <div class="slide-badge">46 CATEGORIAS</div>
+            <h1>Todos os tipos de <span>mercado do mundo</span></h1>
+            <p>De supermercado a mercado japones, tudo em um so app:</p>
+            <div class="cat-pills">
+                <div class="cat-pill">🛒 Supermercado</div><div class="cat-pill">🍽️ Restaurante</div><div class="cat-pill">💊 Farmacia</div>
+                <div class="cat-pill">🐾 Pet Shop</div><div class="cat-pill">🥐 Padaria</div><div class="cat-pill">🥩 Acougue</div>
+                <div class="cat-pill">🥬 Hortifruti</div><div class="cat-pill">📱 Eletronicos</div><div class="cat-pill">👗 Moda</div>
+                <div class="cat-pill">🍕 Pizzaria</div><div class="cat-pill">🍔 Hamburgueria</div><div class="cat-pill">🍣 Sushi</div>
+                <div class="cat-pill">🍜 Asiatico</div><div class="cat-pill">🌮 Mexicano</div><div class="cat-pill">🍛 Indiano</div>
+                <div class="cat-pill">🧀 Gourmet</div><div class="cat-pill">🥑 Vegano</div><div class="cat-pill">+29 mais</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: COMPRANDO -->
+        <div class="slide" data-index="4">
+            <div class="slide-icon">🛍️</div>
+            <div class="slide-badge">EXPERIENCIA DE COMPRA</div>
+            <h1>Compre facil, <span>receba rapido</span></h1>
+            <p>Entre na loja, veja os produtos com preco e descricao, adicione ao carrinho com um toque. Simples assim.</p>
+            <div class="slide-features">
+                <div class="feat"><span class="feat-icon">➕</span><div class="feat-title">1 toque p/ adicionar</div><div class="feat-sub">Rapido e intuitivo</div></div>
+                <div class="feat"><span class="feat-icon">🔔</span><div class="feat-title">Notificacao</div><div class="feat-sub">Confirma cada produto</div></div>
+                <div class="feat"><span class="feat-icon">🔢</span><div class="feat-title">Badge em tempo real</div><div class="feat-sub">Itens no carrinho</div></div>
+                <div class="feat"><span class="feat-icon">⭐</span><div class="feat-title">Avaliacao da loja</div><div class="feat-sub">Nota e tempo de entrega</div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: CARRINHO / CHECKOUT -->
+        <div class="slide" data-index="5">
+            <div class="slide-icon">💳</div>
+            <div class="slide-badge">CARRINHO E CHECKOUT</div>
+            <h1>Do carrinho a <span>porta de casa</span></h1>
+            <p>Revise seus itens, ajuste quantidades, confira o total com frete gratis acima de R$50 e finalize com a forma de pagamento que preferir.</p>
+            <div class="slide-features">
+                <div class="feat"><span class="feat-icon">📱</span><div class="feat-title">PIX</div><div class="feat-sub">Pagamento instantaneo</div></div>
+                <div class="feat"><span class="feat-icon">💳</span><div class="feat-title">Cartao Credito</div><div class="feat-sub">Todas as bandeiras</div></div>
+                <div class="feat"><span class="feat-icon">💳</span><div class="feat-title">Cartao Debito</div><div class="feat-sub">Desconto direto</div></div>
+                <div class="feat"><span class="feat-icon">💵</span><div class="feat-title">Dinheiro</div><div class="feat-sub">Troco na entrega</div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: PROMOCOES -->
+        <div class="slide" data-index="6">
+            <div class="slide-icon">🏷️</div>
+            <div class="slide-badge">PROMOCOES LOCAIS</div>
+            <h1>Menores precos da <span>sua cidade</span></h1>
+            <p>A pagina de promocoes mostra todos os produtos ordenados por preco, com desconto de ate 70%. O ranking classifica as lojas mais baratas com medalha de ouro, prata e bronze.</p>
+            <div class="slide-features-3">
+                <div class="feat3"><span class="feat3-icon">🥇</span><div class="feat3-title">Ranking</div><div class="feat3-sub">Lojas mais baratas</div></div>
+                <div class="feat3"><span class="feat3-icon">🏷️</span><div class="feat3-title">Ate 70% OFF</div><div class="feat3-sub">Descontos reais</div></div>
+                <div class="feat3"><span class="feat3-icon">🔍</span><div class="feat3-title">Filtros</div><div class="feat3-sub">Por categoria</div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: PERFIL CLIENTE -->
+        <div class="slide" data-index="7">
+            <div class="slide-icon">👤</div>
+            <div class="slide-badge">PAINEL DO CLIENTE</div>
+            <h1>Tudo sobre <span>sua conta</span></h1>
+            <p>Perfil completo com carteira digital, tracker ao vivo, lojas favoritas, historico de pedidos, enderecos, cartoes e programa de fidelidade.</p>
+            <div class="slide-features">
+                <div class="feat"><span class="feat-icon">💰</span><div class="feat-title">Carteira digital</div><div class="feat-sub">Saldo e recarga</div></div>
+                <div class="feat"><span class="feat-icon">📍</span><div class="feat-title">Tracker ao vivo</div><div class="feat-sub">Acompanhe a entrega</div></div>
+                <div class="feat"><span class="feat-icon">⭐</span><div class="feat-title">Fidelidade Gold</div><div class="feat-sub">Pontos e beneficios</div></div>
+                <div class="feat"><span class="feat-icon">📦</span><div class="feat-title">Historico</div><div class="feat-sub">Todos os pedidos</div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: ENTREGADOR INTRO -->
+        <div class="slide" data-index="8">
+            <div class="slide-icon">🏍️</div>
+            <div class="slide-badge">PAINEL DO ENTREGADOR</div>
+            <h1>Ganhe dinheiro <span>fazendo entregas</span></h1>
+            <p>Dashboard escuro e profissional com controle total: status online/offline, ganhos em tempo real, pedidos disponiveis e tracker da entrega ativa.</p>
+            <div class="stats-row">
+                <div class="stat-item"><div class="stat-val">R$ 187</div><div class="stat-lbl">Ganho diario</div></div>
+                <div class="stat-item"><div class="stat-val">12</div><div class="stat-lbl">Entregas/dia</div></div>
+                <div class="stat-item"><div class="stat-val">4.9</div><div class="stat-lbl">Avaliacao</div></div>
+                <div class="stat-item"><div class="stat-val">98%</div><div class="stat-lbl">Aceitacao</div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: VEICULOS -->
+        <div class="slide" data-index="9">
+            <div class="slide-icon">🚗</div>
+            <div class="slide-badge">CATEGORIAS DE VEICULO</div>
+            <h1>6 tipos de <span>veiculo</span></h1>
+            <p>O entregador escolhe o veiculo que tem, e recebe pedidos compativeis:</p>
+            <div class="slide-features-3">
+                <div class="feat3"><span class="feat3-icon">🚲</span><div class="feat3-title">Bicicleta</div><div class="feat3-sub">Ate 5 km - Eco</div></div>
+                <div class="feat3"><span class="feat3-icon">🏍️</span><div class="feat3-title">Moto</div><div class="feat3-sub">Ate 15 km - Rapido</div></div>
+                <div class="feat3"><span class="feat3-icon">🚗</span><div class="feat3-title">Carro</div><div class="feat3-sub">Ate 30 km - Conforto</div></div>
+                <div class="feat3"><span class="feat3-icon">🚐</span><div class="feat3-title">Van</div><div class="feat3-sub">Ate 50 km - Volume</div></div>
+                <div class="feat3"><span class="feat3-icon">🚛</span><div class="feat3-title">Caminhao</div><div class="feat3-sub">Sem limite - Pesado</div></div>
+                <div class="feat3"><span class="feat3-icon">🛴</span><div class="feat3-title">Patinete</div><div class="feat3-sub">Ate 3 km - Leve</div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: LOJISTA CADASTRO -->
+        <div class="slide" data-index="10">
+            <div class="slide-icon">🏪</div>
+            <div class="slide-badge">CADASTRO DO LOJISTA</div>
+            <h1>Cadastre sua loja em <span>5 passos</span></h1>
+            <p>Fluxo completo de onboarding com barra de progresso:</p>
+            <div class="demo-scroll">
+                <div class="demo-card"><span class="demo-card-emoji">👤</span><div class="demo-card-name">Dados pessoais</div><div class="demo-card-sub">Nome, CNPJ, email</div></div>
+                <div class="demo-card"><span class="demo-card-emoji">🗂️</span><div class="demo-card-name">Nicho da loja</div><div class="demo-card-sub">46 categorias</div></div>
+                <div class="demo-card"><span class="demo-card-emoji">🏪</span><div class="demo-card-name">Dados da loja</div><div class="demo-card-sub">Nome, endereco, logo</div></div>
+                <div class="demo-card"><span class="demo-card-emoji">🏦</span><div class="demo-card-name">Dados bancarios</div><div class="demo-card-sub">Banco, PIX</div></div>
+                <div class="demo-card"><span class="demo-card-emoji">📋</span><div class="demo-card-name">Termos</div><div class="demo-card-sub">Aceite e finalize</div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: LOJISTA NICHOS -->
+        <div class="slide" data-index="11">
+            <div class="slide-icon">🗂️</div>
+            <div class="slide-badge">46 NICHOS</div>
+            <h1>Cada loja com <span>seu nicho</span></h1>
+            <p>O lojista escolhe a categoria que define seu negocio. De supermercado a mercado japones:</p>
+            <div class="cat-pills">
+                <div class="cat-pill">🛒 Supermercado</div><div class="cat-pill">🍽️ Restaurante</div><div class="cat-pill">💊 Farmacia</div>
+                <div class="cat-pill">🐾 Pet Shop</div><div class="cat-pill">🥐 Padaria</div><div class="cat-pill">🍷 Bebidas</div>
+                <div class="cat-pill">📱 Eletronicos</div><div class="cat-pill">👗 Moda</div><div class="cat-pill">🧸 Brinquedos</div>
+                <div class="cat-pill">🍕 Pizzaria</div><div class="cat-pill">🍔 Hamburgueria</div><div class="cat-pill">☕ Cafeteria</div>
+                <div class="cat-pill">🎮 Games</div><div class="cat-pill">💪 Fitness</div><div class="cat-pill">🌿 Organicos</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: LOJISTA DASHBOARD -->
+        <div class="slide" data-index="12">
+            <div class="slide-icon">📊</div>
+            <div class="slide-badge">DASHBOARD DO LOJISTA</div>
+            <h1>Gerencie tudo <span>num so lugar</span></h1>
+            <p>Painel completo com faturamento, pedidos ativos, produtos, avaliacoes e grafico de vendas semanal.</p>
+            <div class="slide-features">
+                <div class="feat"><span class="feat-icon">📦</span><div class="feat-title">Pedidos em tempo real</div><div class="feat-sub">Aceitar, preparar, entregar</div></div>
+                <div class="feat"><span class="feat-icon">🏷️</span><div class="feat-title">Gestao de produtos</div><div class="feat-sub">Estoque e precos</div></div>
+                <div class="feat"><span class="feat-icon">📊</span><div class="feat-title">Graficos de venda</div><div class="feat-sub">Diario e semanal</div></div>
+                <div class="feat"><span class="feat-icon">⭐</span><div class="feat-title">Avaliacoes</div><div class="feat-sub">Feedback dos clientes</div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 13: FINAL -->
+        <div class="slide" data-index="13">
+            <div class="slide-icon">🚀</div>
+            <div class="slide-badge">DELIVERY GERAL</div>
+            <h1>Tudo entregue <span>na sua porta</span></h1>
+            <p>Um app completo que conecta clientes, lojas e entregadores. 46 categorias de mercado, 55 lojas, 371 produtos, 6 tipos de veiculo e 3 paineis profissionais.</p>
+            <div class="slide-features-3">
+                <div class="feat3" style="border-color:var(--primary);background:rgba(255,77,0,.06)"><span class="feat3-icon">👤</span><div class="feat3-title">App Cliente</div><div class="feat3-sub">index.html</div></div>
+                <div class="feat3" style="border-color:var(--primary);background:rgba(255,77,0,.06)"><span class="feat3-icon">🏍️</span><div class="feat3-title">Entregador</div><div class="feat3-sub">entregador.html</div></div>
+                <div class="feat3" style="border-color:var(--primary);background:rgba(255,77,0,.06)"><span class="feat3-icon">🏪</span><div class="feat3-title">Lojista</div><div class="feat3-sub">lojista.html</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="controls">
+        <button class="ctrl-btn ctrl-prev" id="btn-prev" onclick="prev()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            Anterior
+        </button>
+        <div class="ctrl-dots" id="dots"></div>
+        <button class="ctrl-btn ctrl-next" id="btn-next" onclick="next()">
+            Proximo
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+    </div>
+</div>
+
+<script>
+let current = 0;
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+document.getElementById('total-num').textContent = total;
+
+function goTo(index) {
+    if (index < 0 || index >= total) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit-left');
+    setTimeout(() => slides[current === index ? current : (current)].classList.remove('exit-left'), 500);
+    current = index;
+    slides[current].classList.add('active');
+    document.getElementById('current-num').textContent = current + 1;
+    document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+    renderDots();
+    // Button states
+    document.getElementById('btn-prev').style.visibility = current === 0 ? 'hidden' : 'visible';
+    document.getElementById('btn-next').innerHTML = current === total - 1
+        ? 'Recomecar <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>'
+        : 'Proximo <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>';
+}
+
+function next() { if (current >= total - 1) goTo(0); else goTo(current + 1); }
+function prev() { goTo(current - 1); }
+
+function renderDots() {
+    const dots = document.getElementById('dots');
+    dots.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+        const d = document.createElement('div');
+        d.className = 'dot' + (i === current ? ' active' : '');
+        d.onclick = () => goTo(i);
+        dots.appendChild(d);
+    }
+}
+
+// Keyboard nav
+document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+});
+
+// Touch swipe
+let touchX = 0;
+document.addEventListener('touchstart', e => touchX = e.touches[0].clientX);
+document.addEventListener('touchend', e => {
+    const diff = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) { diff > 0 ? next() : prev(); }
+});
+
+// Init
+goTo(0);
+</script>
+</body>
+</html>

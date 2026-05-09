@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Geral - Painel Administrativo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <style>
+:root{--primary:#FF4D00;--primary-dark:#E04400;--primary-light:#FF6B2C;--glow:rgba(255,77,0,.1);--bg:#0A0A0F;--s1:#12121A;--s2:#1A1A25;--s3:#24243A;--s4:#2E2E42;--border:#2A2A3E;--white:#FFFFFF;--w2:rgba(255,255,255,.7);--w3:rgba(255,255,255,.38);--green:#22C55E;--green-bg:rgba(34,197,94,.1);--red:#EF4444;--red-bg:rgba(239,68,68,.1);--blue:#3B82F6;--blue-bg:rgba(59,130,246,.1);--yellow:#FBBF24;--yellow-bg:rgba(251,191,36,.1);--purple:#8B5CF6;--purple-bg:rgba(139,92,246,.1);--cyan:#06B6D4;--cyan-bg:rgba(6,182,212,.1);--radius:16px;--radius-sm:12px;--transition:.25s cubic-bezier(.4,0,.2,1)}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{max-width:520px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative}
+.page{display:none;padding-bottom:90px;animation:pageIn .3s ease}
+.page.active{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:var(--s1);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.h-left{display:flex;align-items:center;gap:12px}
+.h-logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--primary),#FF8F5E);display:flex;align-items:center;justify-content:center;font-size:1.1rem;position:relative}
+.h-logo::after{content:'';position:absolute;inset:-2px;border-radius:14px;background:linear-gradient(135deg,var(--primary),transparent);opacity:.3;z-index:-1}
+.h-info h2{font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700}
+.h-info p{font-size:.68rem;color:var(--w3)}
+.h-btn{width:38px;height:38px;border:1px solid var(--border);background:var(--s2);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--white);transition:var(--transition);position:relative}
+.h-btn:hover{background:var(--s3);border-color:var(--s4)}
+.h-dot{position:absolute;top:7px;right:7px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--s2)}
+
+/* REVENUE HERO */
+.rev-hero{margin:16px 20px;background:linear-gradient(135deg,#1A0A2E 0%,#0D1B3E 50%,#0A1628 100%);border:1px solid rgba(139,92,246,.2);border-radius:var(--radius);padding:22px;position:relative;overflow:hidden}
+.rev-hero::before{content:'';position:absolute;top:-60%;right:-30%;width:300px;height:300px;background:radial-gradient(circle,rgba(255,77,0,.08),transparent 60%)}
+.rev-hero::after{content:'';position:absolute;bottom:-40%;left:-20%;width:200px;height:200px;background:radial-gradient(circle,rgba(139,92,246,.06),transparent 60%)}
+.rev-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
+.rev-label{font-size:.75rem;color:var(--w3)}
+.rev-value{font-family:'Sora',sans-serif;font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,#fff,#ccc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-top:2px}
+.rev-change{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:20px;margin-top:6px}
+.rev-change.up{background:var(--green-bg);color:var(--green)}
+.rev-period{padding:6px 14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:20px;font-size:.72rem;font-weight:600;color:var(--white);cursor:pointer;backdrop-filter:blur(10px)}
+.rev-breakdown{display:flex;gap:1px;margin-top:18px;background:rgba(255,255,255,.05);border-radius:12px;overflow:hidden;position:relative;z-index:1}
+.rb-item{flex:1;padding:12px 8px;text-align:center;background:rgba(255,255,255,.02)}
+.rb-val{font-family:'Sora',sans-serif;font-weight:800;font-size:1rem}
+.rb-lbl{font-size:.62rem;color:var(--w3);margin-top:2px}
+
+/* METRICS GRID */
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 20px 16px}
+.metric{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;display:flex;align-items:center;gap:12px;transition:var(--transition)}
+.metric:hover{border-color:var(--s4)}
+.m-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.m-text h4{font-family:'Sora',sans-serif;font-size:1.05rem;font-weight:800}
+.m-text p{font-size:.65rem;color:var(--w3)}
+.m-trend{font-size:.6rem;font-weight:700;margin-top:2px}
+.m-trend.up{color:var(--green)}
+.m-trend.down{color:var(--red)}
+
+/* SECTION */
+.section{margin:0 20px 20px}
+.section-title{font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.s-badge{font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:20px}
+.see-all{font-size:.75rem;color:var(--primary);cursor:pointer;font-weight:600;background:none;border:none;font-family:inherit}
+
+/* CHART */
+.chart-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px}
+.chart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.chart-t{font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700}
+.chart-tabs{display:flex;gap:4px}
+.chart-tab{padding:5px 12px;border-radius:8px;font-size:.7rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--w3);border:none;font-family:inherit;transition:var(--transition)}
+.chart-tab.active{background:var(--primary);color:white}
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:120px}
+.cb-w{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.cb-bar{width:100%;border-radius:6px 6px 0 0;min-height:4px;position:relative;transition:var(--transition)}
+.cb-bar.cur{background:linear-gradient(180deg,var(--primary),var(--primary-dark));box-shadow:0 0 12px rgba(255,77,0,.25)}
+.cb-bar:not(.cur){background:var(--s3)}
+.cb-val{font-size:.55rem;font-weight:700;color:var(--w3);position:absolute;top:-14px;left:50%;transform:translateX(-50%);white-space:nowrap}
+.cb-day{font-size:.6rem;color:var(--w3)}
+.cb-day.cur{color:var(--primary);font-weight:700}
+
+/* REVENUE STREAMS */
+.stream-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:14px;transition:var(--transition)}
+.stream-card:hover{border-color:var(--s4)}
+.str-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.str-info{flex:1;min-width:0}
+.str-info h4{font-size:.85rem;font-weight:600}
+.str-info p{font-size:.68rem;color:var(--w3);margin-top:1px}
+.str-val{text-align:right;flex-shrink:0}
+.str-amount{font-family:'Sora',sans-serif;font-weight:800;font-size:.95rem}
+.str-pct{font-size:.62rem;color:var(--w3);margin-top:1px}
+
+/* USER CARDS */
+.user-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:var(--transition)}
+.user-card:hover{border-color:var(--s4)}
+.u-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.u-info{flex:1;min-width:0}
+.u-info h4{font-size:.82rem;font-weight:600}
+.u-info p{font-size:.68rem;color:var(--w3)}
+.u-status{font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:20px;flex-shrink:0}
+.u-status.active{background:var(--green-bg);color:var(--green)}
+.u-status.pending{background:var(--yellow-bg);color:var(--yellow)}
+.u-status.blocked{background:var(--red-bg);color:var(--red)}
+.u-val{font-family:'Sora',sans-serif;font-weight:700;font-size:.82rem;color:var(--green);flex-shrink:0}
+
+/* PLANS */
+.plan-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:10px;position:relative;overflow:hidden;transition:var(--transition)}
+.plan-card:hover{border-color:var(--s4)}
+.plan-card.featured{border-color:var(--primary);background:linear-gradient(135deg,rgba(255,77,0,.04),rgba(255,77,0,.01))}
+.plan-card.featured::before{content:'MAIS POPULAR';position:absolute;top:12px;right:-28px;background:var(--primary);color:white;font-size:.55rem;font-weight:800;padding:3px 32px;transform:rotate(45deg);letter-spacing:.05em}
+.plan-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.plan-name{font-family:'Sora',sans-serif;font-size:1rem;font-weight:700}
+.plan-price{text-align:right}
+.plan-price-val{font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:800;color:var(--primary)}
+.plan-price-period{font-size:.65rem;color:var(--w3)}
+.plan-features{list-style:none;padding:0}
+.plan-features li{font-size:.78rem;color:var(--w2);padding:4px 0;display:flex;align-items:center;gap:8px}
+.plan-features li::before{content:'✓';color:var(--green);font-weight:700;font-size:.7rem}
+.plan-users{font-size:.7rem;color:var(--w3);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+
+/* MENU */
+.menu-group{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.menu-item{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;transition:var(--transition);border-bottom:1px solid var(--border)}
+.menu-item:last-child{border-bottom:none}
+.menu-item:hover{background:var(--s2)}
+.mi-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.mi-text{flex:1}
+.mi-text h4{font-size:.82rem;font-weight:600}
+.mi-text p{font-size:.68rem;color:var(--w3);margin-top:1px}
+.mi-arrow{color:var(--w3)}
+.mi-val{font-family:'Sora',sans-serif;font-weight:700;font-size:.82rem;flex-shrink:0}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:var(--s1);border-top:1px solid var(--border);display:flex;padding:6px 4px 10px;z-index:100}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;background:none;border:none;cursor:pointer;color:var(--w3);transition:var(--transition);font-family:inherit}
+.nav-item.active{color:var(--primary)}
+.nav-item span{font-size:.62rem;font-weight:500}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:white;color:var(--bg);padding:12px 24px;border-radius:12px;font-size:.85rem;font-weight:600;z-index:999;opacity:0;transition:all .3s ease;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* LIVE INDICATOR */
+.live{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;font-weight:600;color:var(--green)}
+.live::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+@media(min-width:521px){body{background:#050508}.app{box-shadow:0 0 60px rgba(139,92,246,.03);border-left:1px solid var(--border);border-right:1px solid var(--border)}}
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- HEADER -->
+    <div class="header">
+        <div class="h-left">
+            <div class="h-logo">👑</div>
+            <div class="h-info"><h2>Painel Admin</h2><p>Delivery Geral • Dono</p></div>
+        </div>
+        <div style="display:flex;gap:6px">
+            <button class="h-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="h-dot"></span></button>
+            <button class="h-btn" onclick="showTab('config')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+        </div>
+    </div>
+
+    <!-- ===== DASHBOARD ===== -->
+    <div id="tab-home" class="page active">
+        <!-- Revenue Hero -->
+        <div class="rev-hero">
+            <div class="rev-top">
+                <div>
+                    <div class="rev-label">Receita total do mes</div>
+                    <div class="rev-value" id="admin-revenue">R$ 0,00</div>
+                    <div class="rev-change up" id="admin-revenue-trend">▲ +0% vs mes anterior</div>
+                </div>
+                <div class="rev-period" id="admin-period">Mai 2026</div>
+            </div>
+            <div class="rev-breakdown">
+                <div class="rb-item"><div class="rb-val" style="color:var(--green)" id="admin-commissions">R$ 0</div><div class="rb-lbl">Comissoes lojas</div></div>
+                <div class="rb-item"><div class="rb-val" style="color:var(--blue)" id="admin-delivery">R$ 0</div><div class="rb-lbl">Taxas entrega</div></div>
+                <div class="rb-item"><div class="rb-val" style="color:var(--purple)" id="admin-subscriptions">R$ 0</div><div class="rb-lbl">Assinaturas</div></div>
+                <div class="rb-item"><div class="rb-val" style="color:var(--yellow)" id="admin-ads">R$ 0</div><div class="rb-lbl">Anuncios</div></div>
+            </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics">
+            <div class="metric"><div class="m-icon" style="background:var(--green-bg)">🏪</div><div class="m-text"><h4 id="admin-stores">0</h4><p>Lojas ativas</p><div class="m-trend up">▲ +0 este mes</div></div></div>
+            <div class="metric"><div class="m-icon" style="background:var(--blue-bg)">🏍️</div><div class="m-text"><h4 id="admin-drivers">0</h4><p>Entregadores</p><div class="m-trend up">▲ +0 este mes</div></div></div>
+            <div class="metric"><div class="m-icon" style="background:var(--purple-bg)">👥</div><div class="m-text"><h4 id="admin-clients">0</h4><p>Clientes</p><div class="m-trend up">▲ +0 este mes</div></div></div>
+            <div class="metric"><div class="m-icon" style="background:var(--yellow-bg)">📦</div><div class="m-text"><h4 id="admin-orders">0</h4><p>Pedidos/mes</p><div class="m-trend up">▲ +0%</div></div></div>
+        </div>
+
+        <!-- Revenue Chart -->
+        <div class="section">
+            <div class="chart-card">
+                <div class="chart-head">
+                    <div class="chart-t">Receita diaria</div>
+                    <div class="chart-tabs">
+                        <button class="chart-tab active">Semana</button>
+                        <button class="chart-tab">Mes</button>
+                    </div>
+                </div>
+                <div class="chart-bars" id="chart"></div>
+            </div>
+        </div>
+
+        <!-- Revenue Streams -->
+        <div class="section">
+            <div class="section-title">Fontes de receita</div>
+            <div class="stream-card">
+                <div class="str-icon" style="background:var(--green-bg)">💰</div>
+                <div class="str-info"><h4>Comissao das lojas (12%)</h4><p id="admin-stream-stores">0 lojas ativas • sobre cada venda</p></div>
+                <div class="str-val"><div class="str-amount" style="color:var(--green)" id="admin-stream-commissions">R$ 0</div><div class="str-pct">0% da receita</div></div>
+            </div>
+            <div class="stream-card">
+                <div class="str-icon" style="background:var(--blue-bg)">🚚</div>
+                <div class="str-info"><h4>Taxa de entrega</h4><p id="admin-stream-delivery-text">R$ 0 por pedido • 0 pedidos</p></div>
+                <div class="str-val"><div class="str-amount" style="color:var(--blue)" id="admin-stream-delivery">R$ 0</div><div class="str-pct">0% da receita</div></div>
+            </div>
+            <div class="stream-card">
+                <div class="str-icon" style="background:var(--purple-bg)">⭐</div>
+                <div class="str-info"><h4>Planos de lojista</h4><p id="admin-stream-plans">0 Pro + 0 Premium</p></div>
+                <div class="str-val"><div class="str-amount" style="color:var(--purple)" id="admin-stream-plans-val">R$ 0</div><div class="str-pct">0% da receita</div></div>
+            </div>
+            <div class="stream-card">
+                <div class="str-icon" style="background:var(--yellow-bg)">📢</div>
+                <div class="str-info"><h4>Destaques e anuncios</h4><p id="admin-stream-ads-text">0 lojas pagando destaque</p></div>
+                <div class="str-val"><div class="str-amount" style="color:var(--yellow)" id="admin-stream-ads">R$ 0</div><div class="str-pct">0% da receita</div></div>
+            </div>
+        </div>
+
+        <!-- Live Activity -->
+        <div class="section">
+            <div class="section-title"><span class="live">Atividade ao vivo</span></div>
+            <div id="live-feed"></div>
+        </div>
+    </div>
+
+    <!-- ===== GESTAO ===== -->
+    <div id="tab-gestao" class="page">
+        <div class="section" style="padding-top:16px">
+            <div class="section-title">Lojas cadastradas <span class="s-badge" id="badge-lojas" style="background:var(--green-bg);color:var(--green)">0 ativas</span></div>
+            <div id="stores-list"></div>
+        </div>
+        <div class="section">
+            <div class="section-title">Entregadores <span class="s-badge" id="badge-entregadores" style="background:var(--blue-bg);color:var(--blue)">0 online</span></div>
+            <div id="drivers-list"></div>
+        </div>
+        <div class="section">
+            <div class="section-title">Clientes recentes</div>
+            <div id="clients-list"></div>
+        </div>
+    </div>
+
+    <!-- ===== FINANCEIRO ===== -->
+    <div id="tab-financeiro" class="page">
+        <div class="section" style="padding-top:16px">
+            <div class="section-title">Planos para Lojistas</div>
+            <div class="plan-card">
+                <div class="plan-head"><div class="plan-name">🆓 Plano Gratis</div><div class="plan-price"><div class="plan-price-val">R$ 0</div><div class="plan-price-period">/mes</div></div></div>
+                <ul class="plan-features">
+                    <li>Comissao de 15% sobre vendas</li>
+                    <li>Ate 50 produtos cadastrados</li>
+                    <li>Suporte por email</li>
+                    <li>Relatorio basico mensal</li>
+                </ul>
+                <div class="plan-users" id="plan-free-count">0 lojas neste plano</div>
+            </div>
+            <div class="plan-card featured">
+                <div class="plan-head"><div class="plan-name">🚀 Plano Pro</div><div class="plan-price"><div class="plan-price-val">R$ 99</div><div class="plan-price-period">/mes</div></div></div>
+                <ul class="plan-features">
+                    <li>Comissao reduzida de 10%</li>
+                    <li>Produtos ilimitados</li>
+                    <li>Destaque nas buscas</li>
+                    <li>Relatorios avancados</li>
+                    <li>Suporte prioritario WhatsApp</li>
+                </ul>
+                <div class="plan-users" id="plan-pro-count">0 lojas neste plano</div>
+            </div>
+            <div class="plan-card">
+                <div class="plan-head"><div class="plan-name">👑 Plano Premium</div><div class="plan-price"><div class="plan-price-val">R$ 249</div><div class="plan-price-period">/mes</div></div></div>
+                <ul class="plan-features">
+                    <li>Comissao minima de 8%</li>
+                    <li>Produtos ilimitados</li>
+                    <li>Topo do ranking sempre</li>
+                    <li>Banner promocional na home</li>
+                    <li>Dashboard analytics avancado</li>
+                    <li>Gerente de conta dedicado</li>
+                </ul>
+                <div class="plan-users" id="plan-premium-count">0 lojas neste plano</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Assinatura de Clientes</div>
+            <div class="plan-card">
+                <div class="plan-head"><div class="plan-name">🛒 Delivery Plus</div><div class="plan-price"><div class="plan-price-val">R$ 19,90</div><div class="plan-price-period">/mes</div></div></div>
+                <ul class="plan-features">
+                    <li>Frete gratis em TODOS os pedidos</li>
+                    <li>Descontos exclusivos 10%</li>
+                    <li>Entrega prioritaria</li>
+                    <li>Sem valor minimo de pedido</li>
+                </ul>
+                <div class="plan-users" id="plan-plus-count">0 assinantes</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Resumo financeiro</div>
+            <div class="menu-group">
+                <div class="menu-item"><div class="mi-icon" style="background:var(--green-bg)">💰</div><div class="mi-text"><h4>Receita bruta</h4><p>Total antes de custos</p></div><div class="mi-val" id="fin-receita" style="color:var(--green)">R$ 0,00</div></div>
+                <div class="menu-item"><div class="mi-icon" style="background:var(--red-bg)">📤</div><div class="mi-text"><h4>Repasses a lojas</h4><p>Vendas - comissao</p></div><div class="mi-val" id="fin-repasses" style="color:var(--red)">-R$ 0,00</div></div>
+                <div class="menu-item"><div class="mi-icon" style="background:var(--red-bg)">🏍️</div><div class="mi-text"><h4>Pagamento entregadores</h4><p>75% da taxa de entrega</p></div><div class="mi-val" id="fin-entregadores" style="color:var(--red)">-R$ 0,00</div></div>
+                <div class="menu-item"><div class="mi-icon" style="background:var(--yellow-bg)">🏦</div><div class="mi-text"><h4>Taxas gateway pag.</h4><p>2.5% transacoes</p></div><div class="mi-val" id="fin-gateway" style="color:var(--yellow)">-R$ 0,00</div></div>
+                <div class="menu-item"><div class="mi-icon" style="background:var(--purple-bg)">💎</div><div class="mi-text"><h4>Lucro liquido</h4><p>Sua receita real</p></div><div class="mi-val" id="fin-lucro" style="color:var(--primary);font-size:.95rem">R$ 0,00</div></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Saques realizados</div>
+            <div id="saques-list">
+                <div style="text-align:center;padding:40px 20px;color:var(--text-w3)">
+                    <div style="font-size:3rem;margin-bottom:16px">💸</div>
+                    <h3 style="color:var(--text-w2);margin-bottom:8px">Nenhum saque realizado</h3>
+                    <p>Os saques aparecerao aqui!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CONFIG ===== -->
+    <div id="tab-config" class="page">
+        <div class="section" style="padding-top:16px">
+            <div class="section-title">Configuracoes da plataforma</div>
+            <div class="menu-group">
+                <div class="menu-item" onclick="toast('Comissoes')"><div class="mi-icon" style="background:var(--green-bg)">💰</div><div class="mi-text"><h4>Taxas e comissoes</h4><p>Definir % por plano</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item" onclick="toast('Entrega')"><div class="mi-icon" style="background:var(--blue-bg)">🚚</div><div class="mi-text"><h4>Taxas de entrega</h4><p>Valor por km, taxa fixa</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item" onclick="toast('Pagamento')"><div class="mi-icon" style="background:var(--purple-bg)">💳</div><div class="mi-text"><h4>Gateway de pagamento</h4><p>Stripe, Mercado Pago, PagSeguro</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item" onclick="toast('Regioes')"><div class="mi-icon" style="background:var(--yellow-bg)">📍</div><div class="mi-text"><h4>Regioes de atuacao</h4><p>Cidades e bairros ativos</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item" onclick="toast('Promocoes')"><div class="mi-icon" style="background:var(--glow)">🏷️</div><div class="mi-text"><h4>Promocoes globais</h4><p>Cupons, frete gratis, campanhas</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item" onclick="toast('Notificacoes')"><div class="mi-icon" style="background:var(--cyan-bg)">🔔</div><div class="mi-text"><h4>Notificacoes push</h4><p>Enviar para clientes e lojas</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-title">Aprovacoes pendentes</div>
+            <div class="menu-group">
+                <div class="menu-item" onclick="toast('Aprovar loja')"><div class="mi-icon" style="background:var(--yellow-bg)">🏪</div><div class="mi-text"><h4 id="pend-lojas">0 lojas aguardando</h4><p>Revisar e aprovar cadastro</p></div><span class="s-badge" id="badge-pend-lojas" style="background:var(--yellow-bg);color:var(--yellow)">0</span></div>
+                <div class="menu-item" onclick="toast('Aprovar entregador')"><div class="mi-icon" style="background:var(--yellow-bg)">🏍️</div><div class="mi-text"><h4 id="pend-entregadores">0 entregadores aguardando</h4><p>Verificar documentos</p></div><span class="s-badge" id="badge-pend-entregadores" style="background:var(--yellow-bg);color:var(--yellow)">0</span></div>
+                <div class="menu-item" onclick="toast('Saques')"><div class="mi-icon" style="background:var(--yellow-bg)">💸</div><div class="mi-text"><h4 id="pend-saques">0 saques pendentes</h4><p>Lojas e entregadores</p></div><span class="s-badge" id="badge-pend-saques" style="background:var(--yellow-bg);color:var(--yellow)">0</span></div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-title">Sistema</div>
+            <div class="menu-group">
+                <div class="menu-item"><div class="mi-icon" style="background:var(--s3)">📊</div><div class="mi-text"><h4>Relatorios</h4><p>Exportar CSV, PDF</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item"><div class="mi-icon" style="background:var(--s3)">🔒</div><div class="mi-text"><h4>Seguranca</h4><p>2FA, logs, acessos</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item"><div class="mi-icon" style="background:var(--s3)">⚙️</div><div class="mi-text"><h4>API e integracoes</h4><p>Webhooks, SDK</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-tab="home" onclick="showTab('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg><span>Dashboard</span></button>
+        <button class="nav-item" data-tab="gestao" onclick="showTab('gestao')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Gestao</span></button>
+        <button class="nav-item" data-tab="financeiro" onclick="showTab('financeiro')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Financeiro</span></button>
+        <button class="nav-item" data-tab="config" onclick="showTab('config')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Config</span></button>
+    </nav>
+</div>
+
+<script>
+function showTab(t){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('tab-'+t).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.tab===t));window.scrollTo({top:0,behavior:'smooth'})}
+function toast(m){document.querySelectorAll('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},2000)}
+
+// Chart - sera atualizado com dados reais
+function renderChart(data) {
+    const mx = Math.max(...data.map(x => x.v), 1);
+    document.getElementById('chart').innerHTML = data.map(d => {
+        const h = Math.max(8, (d.v / mx) * 100);
+        return `<div class="cb-w"><div class="cb-bar ${d.c ? 'cur' : ''}" style="height:${h}%"><span class="cb-val">R$${(d.v / 1000).toFixed(1)}k</span></div><span class="cb-day ${d.c ? 'cur' : ''}">${d.d}</span></div>`;
+    }).join('');
+}
+
+// Inicializa com zeros
+renderChart([{ d: 'Seg', v: 0 }, { d: 'Ter', v: 0 }, { d: 'Qua', v: 0 }, { d: 'Qui', v: 0 }, { d: 'Sex', v: 0 }, { d: 'Sab', v: 0 }, { d: 'Hoje', v: 0, c: true }]);
+
+// ===== FIREBASE AUTH GUARD + REALTIME DATA =====
+const firebaseConfigAdmin = {
+  apiKey: "AIzaSyBPdbt1b-tQaYtQgZKLKRaiZhp80bkuI8I",
+  authDomain: "delivery-geral-af64e.firebaseapp.com",
+  projectId: "delivery-geral-af64e",
+  storageBucket: "delivery-geral-af64e.firebasestorage.app",
+  messagingSenderId: "414484131141",
+  appId: "1:414484131141:web:67d058d157e6b7fc0f622c",
+  measurementId: "G-WHS4WZJXFH"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfigAdmin);
+const dbA = firebase.firestore();
+const authA = firebase.auth();
+
+authA.onAuthStateChanged(async (user) => {
+    if (!user) {
+        window.location.href = 'index.html';
+        return;
+    }
+    const doc = await dbA.collection('users').doc(user.uid).get();
+    const profile = doc.exists ? doc.data() : {};
+    if (profile.role !== 'admin') {
+        showToast('Acesso restrito a administradores');
+        setTimeout(() => window.location.href = 'index.html', 1500);
+        return;
+    }
+    loadRealtimeData();
+});
+
+function loadRealtimeData() {
+    // Total de pedidos hoje
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    dbA.collection('orders').where('createdAt', '>=', today).onSnapshot(snap => {
+        const count = snap.size;
+        const el = document.getElementById('metric-orders');
+        if (el) el.textContent = count;
+    });
+
+    // Receita total (pedidos entregues)
+    dbA.collection('orders').where('status', '==', 'delivered').onSnapshot(snap => {
+        let total = 0;
+        let commissions = 0;
+        let deliveryFees = 0;
+        let totalOrders = snap.size;
+        
+        snap.forEach(d => { 
+            const data = d.data();
+            total += (data.total || 0); 
+            commissions += (data.subtotal || 0) * 0.12; // 12% comissao
+            deliveryFees += (data.deliveryFee || 0);
+        });
+        
+        // Atualiza receita total
+        const revEl = document.getElementById('admin-revenue');
+        if (revEl) revEl.textContent = 'R$ ' + total.toFixed(2).replace('.',',');
+        
+        // Atualiza comissoes
+        const commEl = document.getElementById('admin-commissions');
+        if (commEl) commEl.textContent = 'R$ ' + commissions.toFixed(0);
+        
+        // Atualiza stream comissoes
+        const streamCommEl = document.getElementById('admin-stream-commissions');
+        if (streamCommEl) streamCommEl.textContent = 'R$ ' + commissions.toFixed(0);
+        
+        // Atualiza taxas de entrega
+        const delEl = document.getElementById('admin-delivery');
+        if (delEl) delEl.textContent = 'R$ ' + deliveryFees.toFixed(0);
+        
+        // Atualiza stream delivery
+        const streamDelEl = document.getElementById('admin-stream-delivery');
+        if (streamDelEl) streamDelEl.textContent = 'R$ ' + deliveryFees.toFixed(0);
+        
+        const streamDelText = document.getElementById('admin-stream-delivery-text');
+        if (streamDelText) streamDelText.textContent = 'R$ ' + (totalOrders > 0 ? (deliveryFees/totalOrders).toFixed(2) : '0,00') + ' por pedido • ' + totalOrders + ' pedidos';
+        
+        // Atualiza metrica de pedidos
+        const ordEl = document.getElementById('admin-orders');
+        if (ordEl) ordEl.textContent = totalOrders;
+    });
+
+    // Usuarios
+    dbA.collection('users').onSnapshot(snap => {
+        let clients = 0, stores = 0, drivers = 0;
+        snap.forEach(d => {
+            const r = d.data().role;
+            if (r === 'client') clients++;
+            if (r === 'store') stores++;
+            if (r === 'driver') drivers++;
+        });
+        
+        const elC = document.getElementById('admin-clients');
+        const elS = document.getElementById('admin-stores');
+        const elD = document.getElementById('admin-drivers');
+        if (elC) elC.textContent = clients;
+        if (elS) elS.textContent = stores;
+        if (elD) elD.textContent = drivers;
+        
+        // Atualiza stream stores
+        const streamStores = document.getElementById('admin-stream-stores');
+        if (streamStores) streamStores.textContent = stores + ' lojas ativas • sobre cada venda';
+    });
+    
+    // Lojas pendentes
+    dbA.collection('stores').where('approved', '==', false).onSnapshot(snap => {
+        const el = document.getElementById('pending-stores-count');
+        if (el) el.textContent = snap.size;
+    });
+    
+    // Carrega lojas reais
+    dbA.collection('stores').onSnapshot(snap => {
+        const stores = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const container = document.getElementById('stores-list');
+        if (container) {
+            if (stores.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--w3)">Nenhuma loja cadastrada</div>';
+            } else {
+                container.innerHTML = stores.map(s => `
+                    <div class="user-card">
+                        <div class="u-avatar" style="background:var(--s3)">${s.emoji || '🏪'}</div>
+                        <div class="u-info"><h4>${s.name || 'Loja'}</h4><p>${s.niche || 'Sem categoria'}</p></div>
+                        <div class="u-status ${s.approved ? 'active' : 'pending'}">${s.approved ? 'Ativa' : 'Pendente'}</div>
+                    </div>
+                `).join('');
+            }
+        }
+        // Atualiza contagem
+        const badge = document.querySelector('#tab-gestao .section-title .s-badge');
+        if (badge) badge.textContent = stores.filter(s => s.approved).length + ' ativas';
+    });
+    
+    // Carrega entregadores reais
+    dbA.collection('users').where('role', '==', 'driver').onSnapshot(snap => {
+        const drivers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const container = document.getElementById('drivers-list');
+        if (container) {
+            if (drivers.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--w3)">Nenhum entregador cadastrado</div>';
+            } else {
+                container.innerHTML = drivers.map(d => `
+                    <div class="user-card">
+                        <div class="u-avatar" style="background:var(--s3)">🏍️</div>
+                        <div class="u-info"><h4>${d.name || 'Entregador'}</h4><p>${d.phone || ''}</p></div>
+                        <div class="u-status active">Online</div>
+                    </div>
+                `).join('');
+            }
+        }
+    });
+    
+    // Carrega clientes reais
+    dbA.collection('users').where('role', '==', 'client').limit(10).onSnapshot(snap => {
+        const clients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const container = document.getElementById('clients-list');
+        if (container) {
+            if (clients.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--w3)">Nenhum cliente cadastrado</div>';
+            } else {
+                container.innerHTML = clients.map(c => `
+                    <div class="user-card">
+                        <div class="u-avatar" style="background:var(--s3)">👤</div>
+                        <div class="u-info"><h4>${c.name || 'Cliente'}</h4><p>${c.email || ''}</p></div>
+                    </div>
+                `).join('');
+            }
+        }
+    });
+    
+    // Atualiza data atual
+    const periodEl = document.getElementById('admin-period');
+    if (periodEl) {
+        const now = new Date();
+        const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+        periodEl.textContent = months[now.getMonth()] + ' ' + now.getFullYear();
+    }
+}
+
+function showToast(msg) {
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:10px 20px;border-radius:20px;font-size:.85rem;z-index:9999;animation:fadeIn .3s ease;';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2500);
+}
+</script>
+</body>
+</html>

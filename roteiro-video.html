@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roteiro de Video - Delivery Geral</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        @page { size: A4; margin: 2cm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; color: #1A1A1A; line-height: 1.7; background: #fff; max-width: 800px; margin: 0 auto; padding: 40px 32px; }
+
+        /* COVER */
+        .cover { text-align: center; padding: 60px 0 40px; border-bottom: 3px solid #FF4D00; margin-bottom: 40px; page-break-after: always; }
+        .cover-logo { font-size: 3rem; margin-bottom: 12px; }
+        .cover h1 { font-family: 'Sora', sans-serif; font-size: 2.2rem; font-weight: 800; color: #FF4D00; }
+        .cover h2 { font-family: 'Sora', sans-serif; font-size: 1.1rem; font-weight: 600; color: #666; margin-top: 8px; }
+        .cover .meta { margin-top: 30px; font-size: .85rem; color: #999; }
+        .cover .meta strong { color: #1A1A1A; }
+
+        /* HEADINGS */
+        h2 { font-family: 'Sora', sans-serif; font-size: 1.4rem; font-weight: 800; color: #FF4D00; margin-top: 40px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #FFE0D0; }
+        h3 { font-family: 'Sora', sans-serif; font-size: 1.05rem; font-weight: 700; margin-top: 28px; margin-bottom: 10px; color: #1A1A1A; }
+        h4 { font-family: 'Sora', sans-serif; font-size: .9rem; font-weight: 700; margin-top: 18px; margin-bottom: 6px; color: #444; }
+
+        p { margin-bottom: 10px; font-size: .92rem; }
+        ul, ol { margin-bottom: 14px; padding-left: 24px; }
+        li { margin-bottom: 6px; font-size: .9rem; }
+
+        /* SCENE CARD */
+        .scene { background: #FFF8F5; border-left: 4px solid #FF4D00; border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 20px 0; }
+        .scene-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .scene-num { background: #FF4D00; color: white; font-family: 'Sora', sans-serif; font-size: .75rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; }
+        .scene-title { font-family: 'Sora', sans-serif; font-weight: 700; font-size: .95rem; }
+        .scene-time { font-size: .75rem; color: #999; margin-left: auto; }
+        .scene-body { font-size: .88rem; color: #444; }
+        .scene-body strong { color: #1A1A1A; }
+
+        /* ACTION */
+        .action { background: #F0F9FF; border-left: 4px solid #3B82F6; border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; font-size: .85rem; }
+        .action::before { content: '🖱️ ACAO: '; font-weight: 700; color: #3B82F6; }
+
+        /* NARRATION */
+        .narration { background: #F0FDF4; border-left: 4px solid #22C55E; border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; font-size: .88rem; font-style: italic; color: #333; }
+        .narration::before { content: '🎙️ FALA: '; font-weight: 700; color: #22C55E; font-style: normal; }
+
+        /* TIP */
+        .tip { background: #FFFBEB; border-left: 4px solid #F59E0B; border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; font-size: .85rem; }
+        .tip::before { content: '💡 DICA: '; font-weight: 700; color: #F59E0B; }
+
+        /* TABLE */
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: .85rem; }
+        th { background: #FF4D00; color: white; font-family: 'Sora', sans-serif; font-weight: 700; padding: 10px 14px; text-align: left; }
+        td { padding: 10px 14px; border-bottom: 1px solid #eee; }
+        tr:nth-child(even) td { background: #FAFAF8; }
+
+        /* SEPARATOR */
+        hr { border: none; height: 1px; background: #E8E5E0; margin: 30px 0; }
+
+        .page-break { page-break-before: always; }
+
+        /* PRINT */
+        @media print {
+            body { padding: 0; }
+            .scene, .action, .narration, .tip { break-inside: avoid; }
+            h2 { break-after: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== CAPA ===== -->
+<div class="cover">
+    <div class="cover-logo">🛒</div>
+    <h1>Delivery Geral</h1>
+    <h2>Roteiro Completo para Gravacao de Video</h2>
+    <p style="margin-top:16px;color:#666;font-size:.95rem">Guia passo a passo de todas as funcionalidades do app</p>
+    <div class="meta">
+        <strong>Duracao estimada:</strong> 12-15 minutos<br>
+        <strong>Arquivos:</strong> index.html (cliente) | entregador.html | lojista.html<br>
+        <strong>Data:</strong> Maio 2026<br>
+        <strong>Versao:</strong> 1.0
+    </div>
+</div>
+
+<!-- ===== INDICE ===== -->
+<h2>Indice do Roteiro</h2>
+<table>
+    <tr><th>#</th><th>Cena</th><th>Tela</th><th>Tempo</th></tr>
+    <tr><td>1</td><td>Abertura e Splash Screen</td><td>index.html</td><td>0:00 - 0:30</td></tr>
+    <tr><td>2</td><td>Tela Inicial - Home do Cliente</td><td>index.html</td><td>0:30 - 2:00</td></tr>
+    <tr><td>3</td><td>Categorias e Lojas</td><td>index.html</td><td>2:00 - 3:30</td></tr>
+    <tr><td>4</td><td>Comprando Produtos</td><td>index.html</td><td>3:30 - 5:00</td></tr>
+    <tr><td>5</td><td>Carrinho e Checkout</td><td>index.html</td><td>5:00 - 6:30</td></tr>
+    <tr><td>6</td><td>Promocoes Locais</td><td>index.html</td><td>6:30 - 7:30</td></tr>
+    <tr><td>7</td><td>Painel do Cliente (Perfil)</td><td>index.html</td><td>7:30 - 8:30</td></tr>
+    <tr><td>8</td><td>Painel do Entregador</td><td>entregador.html</td><td>8:30 - 10:30</td></tr>
+    <tr><td>9</td><td>Cadastro do Lojista</td><td>lojista.html</td><td>10:30 - 12:30</td></tr>
+    <tr><td>10</td><td>Painel do Lojista (Dashboard)</td><td>lojista.html</td><td>12:30 - 14:00</td></tr>
+    <tr><td>11</td><td>Encerramento</td><td>-</td><td>14:00 - 14:30</td></tr>
+</table>
+
+<hr>
+
+<!-- ===== CENA 1 ===== -->
+<h2 class="page-break">Parte 1 - App do Cliente</h2>
+
+<div class="scene">
+    <div class="scene-header">
+        <span class="scene-num">CENA 1</span>
+        <span class="scene-title">Abertura e Splash Screen</span>
+        <span class="scene-time">0:00 - 0:30</span>
+    </div>
+    <div class="scene-body">A primeira coisa que o usuario ve ao abrir o app.</div>
+</div>
+
+<div class="action">Abra o arquivo <strong>index.html</strong> no navegador. Espere a splash screen laranja com o logo aparecer.</div>
+
+<div class="narration">Esse e o Delivery Geral - um app de delivery completo que reune todos os tipos de mercado que existem no mundo em um so lugar. Com ele, voce faz suas compras sem sair de casa.</div>
+
+<div class="tip">A splash screen tem animacao de loading e dura cerca de 2 segundos antes de mostrar o app.</div>
+
+<!-- CENA 2 -->
+<div class="scene">
+    <div class="scene-header">
+        <span class="scene-num">CENA 2</span>
+        <span class="scene-title">Tela Inicial - Home do Cliente</span>
+        <span class="scene-time">0:30 - 2:00</span>
+    </div>
+    <div class="scene-body">Mostrar todos os elementos da home.</div>
+</div>
+
+<div class="narration">Assim que abre, voce ve a tela principal. Vamos conhecer cada parte:</div>
+
+<h4>2.1 - Header</h4>
+<div class="action">Aponte para o header no topo: logo, botao de busca, carrinho e perfil.</div>
+<div class="narration">No topo temos o logo do Delivery Geral, o botao de busca, o carrinho de compras e o icone de perfil. Logo abaixo, mostra o endereco de entrega que voce pode alterar a qualquer momento.</div>
+
+<h4>2.2 - Banner Principal</h4>
+<div class="action">Mostre o banner laranja com a frase "Tudo que voce precisa, entregue na sua porta".</div>
+<div class="narration">O banner destaca que o app entrega de tudo - supermercados, farmacias, restaurantes, pet shops e muito mais. Tambem mostra 3 vantagens: entrega rapida em 30 minutos, taxa gratis e funciona 24 horas.</div>
+
+<h4>2.3 - Categorias</h4>
+<div class="action">Deslize a fila de categorias para a direita para mostrar todas.</div>
+<div class="narration">Aqui temos as categorias de mercado. Sao mais de 46 tipos: desde supermercado, restaurante, farmacia, ate mercado asiatico, arabe, italiano, mexicano, indiano e japones. Tem de tudo!</div>
+
+<h4>2.4 - Ofertas do Dia</h4>
+<div class="action">Deslize os cards de promocao coloridos.</div>
+<div class="narration">As ofertas do dia mostram descontos exclusivos: 50% na primeira compra, frete gratis, 2 por 1 em bebidas e 30% em hortifruti.</div>
+
+<h4>2.5 - Banner de Promocoes</h4>
+<div class="action">Mostre o banner laranja "Promocoes da sua cidade" mas NAO clique ainda.</div>
+<div class="narration">Esse botao leva para a pagina de promocoes locais com os menores precos da sua cidade. Vamos ver mais adiante.</div>
+
+<h4>2.6 - Lojas Populares</h4>
+<div class="action">Role para baixo mostrando as 12 lojas populares em grid.</div>
+<div class="narration">Aqui ficam as lojas mais populares. O app tem 55 lojas cadastradas com mais de 370 produtos. Cada loja mostra a nota de avaliacao e o tempo estimado de entrega.</div>
+
+<h4>2.7 - Como Funciona + Links</h4>
+<div class="action">Mostre a secao "Como funciona" e os banners "Seja um Entregador" e "Cadastre sua Loja".</div>
+<div class="narration">Aqui explica o funcionamento em 3 passos: escolha a categoria, monte seu pedido e receba em casa. E logo abaixo, temos os links para quem quer trabalhar como entregador ou cadastrar sua loja no app.</div>
+
+<!-- CENA 3 -->
+<div class="scene">
+    <div class="scene-header">
+        <span class="scene-num">CENA 3</span>
+        <span class="scene-title">Categorias e Lojas</span>
+        <span class="scene-time">2:00 - 3:30</span>
+    </div>
+    <div class="scene-body">Navegar pelas categorias e entrar numa loja.</div>
+</div>
+
+<h4>3.1 - Todas as Categorias</h4>
+<div class="action">Clique em <strong>"Categorias"</strong> na barra inferior (ou "Ver todos"). Mostre o grid completo de 46 categorias.</div>
+<div class="narration">Veja todas as 46 categorias disponiveis: supermercado, restaurante, farmacia, pet shop, padaria, acougue, hortifruti, bebidas, eletronicos, moda, livraria, floricultura, brinquedos, esportes, cosmeticos, ferragens, papelaria, moveis, saude natural, limpeza, bebe, auto pecas, pesca, jardinagem, instrumentos, games, gourmet, doces, organicos, congelados, e mercados internacionais de todo o mundo.</div>
+
+<h4>3.2 - Entrando numa Categoria com Multiplas Lojas</h4>
+<div class="action">Clique em <strong>"Supermercado"</strong>. Vai mostrar uma lista com 3 lojas: Mercado Central, Supermercado Economia e Supermercado Premium.</div>
+<div class="narration">Quando uma categoria tem varias lojas, o app mostra a lista para voce escolher. Cada loja mostra a avaliacao, tempo de entrega e quantidade de produtos.</div>
+
+<h4>3.3 - Dentro de uma Loja</h4>
+<div class="action">Clique em <strong>"Mercado Central"</strong>. Mostre o banner da loja e role pelos produtos.</div>
+<div class="narration">Dentro da loja vemos o nome, avaliacao, tempo de entrega e tags como "Entrega rapida", "Bem avaliado" e "Aceita PIX". Abaixo estao todos os produtos com nome, descricao e preco. Para adicionar ao carrinho, basta clicar no botao "+".</div>
+
+<!-- CENA 4 -->
+<div class="scene">
+    <div class="scene-header">
+        <span class="scene-num">CENA 4</span>
+        <span class="scene-title">Comprando Produtos</span>
+        <span class="scene-time">3:30 - 5:00</span>
+    </div>
+    <div class="scene-body">Demonstrar a compra de produtos.</div>
+</div>
+
+<div class="action">Clique no <strong>"+"</strong> de 3 ou 4 produtos diferentes. Mostre o toast "adicionado ao carrinho" e o badge vermelho no icone do carrinho aumentando.</div>
+
+<div class="narration">Vou adicionar alguns produtos: Arroz Integral, Feijao Preto, Azeite Extra Virgem e Leite. Cada vez que adiciono, aparece uma notificacao confirmando. E o numero no icone do carrinho vai atualizando em tempo real.</div>
+
+<h4>4.1 - Busca</h4>
+<div class="action">Clique em <strong>"Buscar"</strong> na barra inferior. Digite <strong>"pizza"</strong> no campo de busca.</div>
+<div class="narration">A busca funciona em tempo real. Ao digitar "pizza", o app encontra categorias relacionadas, lojas como a Pizzaria Napoli, e todos os produtos que contem pizza em qualquer loja. Voce pode adicionar direto da busca sem precisar entrar na loja.</div>
+
+<!-- CENA 5 -->
+<div class="scene">
+    <div class="scene-header">
+        <span class="scene-num">CENA 5</span>
+        <span class="scene-title">Carrinho e Checkout</span>
+        <span class="scene-time">5:00 - 6:30</span>
+    </div>
+    <div class="scene-body">Fluxo completo de compra.</div>
+</div>
+
+<h4>5.1 - Carrinho</h4>
+<div class="action">Clique no icone do <strong>carrinho</strong>. Mostre os itens adicionados.</div>
+<div class="narration">No carrinho vemos todos os itens que adicionamos com emoji, nome e preco. Podemos aumentar ou diminuir a quantidade com os botoes "+" e "-". Abaixo temos o resumo: subtotal, taxa de entrega (gratis acima de R$50) e o total.</div>
+
+<div class="action">Mude a quantidade de um produto clicando em <strong>"+"</strong> e depois clique em <strong>"Finalizar pedido"</strong>.</div>
+
+<h4>5.2 - Checkout</h4>
+<div class="narration">Na tela de finalizar pedido, preenchemos o endereco de entrega e escolhemos a forma de pagamento: PIX, cartao de credito, cartao de debito ou dinheiro.</div>
+
+<div class="action">Selecione <strong>PIX</strong> como pagamento e clique em <strong>"Confirmar Pedido"</strong>.</div>
+
+<h4>5.3 - Confirmacao</h4>
+<div class="narration">Pronto! O pedido foi confirmado com um numero de rastreio. O tempo estimado de entrega e de 30 a 45 minutos. Agora e so esperar em casa!</div>
+
+<div class="action">Clique em <strong>"Voltar ao inicio"</strong>.</div>
+
+<!-- CENA 6 -->
+<div class="scene">
+    <div class="scene-header">
+        <span class="scene-num">CENA 6</span>
+        <span class="scene-title">Promocoes Locais</span>
+        <span class="scene-time">6:30 - 7:30</span>
+    </div>
+    <div class="scene-body">Pagina de promocoes com ranking.</div>
+</div>
+
+<div class="action">Clique em <strong>"Promocoes"</strong> na barra inferior. Se pedir a cidade, digite o nome da sua cidade.</div>
+
+<div class="narration">A pagina de promocoes e personalizada para a sua cidade. No topo mostra quantos produtos estao em oferta, quantas lojas parceiras e o desconto maximo de ate 70%.</div>
+
+<h4>6.1 - Filtros</h4>
+<div class="action">Clique em alguns filtros como <strong>"Mercado"</strong>, depois <strong>"Restaurante"</strong>, depois volte para <strong>"Todos"</strong>.</div>
+<div class="narration">Voce pode filtrar por categoria: mercado, restaurante, farmacia, padaria e muito mais. O ranking e a lista de produtos atualizam em tempo real.</div>
+
+<h4>6.2 - Ranking</h4>
+<div class="action">Mostre o ranking com medalhas ouro, prata e bronze.</div>
+<div class="narration">O ranking mostra quais lojas tem os menores precos medios. A loja em primeiro lugar tem medalha de ouro, a segunda prata e a terceira bronze. Ao lado aparece o preco medio dos produtos de cada loja.</div>
+
+<h4>6.3 - Produtos Mais Baratos</h4>
+<div class="action">Role para baixo mostrando a lista de produtos com preco original riscado, preco promocional e porcentagem de desconto.</div>
+<div class="narration">Aqui estao todos os produtos ordenados do mais barato ao mais caro. Cada produto mostra o preco original riscado, o preco com desconto em verde e a porcentagem de economia. Voce pode adicionar direto ao carrinho.</div>
+
+<!-- CENA 7 -->
+<div class="scene">
+    <div class="scene-header">
+        <span class="scene-num">CENA 7</span>
+        <span class="scene-title">Painel do Cliente (Perfil)</span>
+        <span class="scene-time">7:30 - 8:30</span>
+    </div>
+    <div class="scene-body">Mostrar o perfil completo do cliente.</div>
+</div>
+
+<div class="action">Clique no icone de <strong>perfil</strong> (pessoa) no canto superior direito do header.</div>
+
+<div class="narration">No perfil do cliente temos tudo: avatar, nome, email, nivel Gold com pontos de fidelidade e estatisticas de pedidos e gastos.</div>
+
+<div class="action">Role para baixo mostrando cada secao: Carteira digital, Pedido em andamento, Lojas favoritas, Minha conta, Enderecos, Formas de pagamento, Historico de pedidos e Configuracoes.</div>
+
+<div class="narration">A carteira digital mostra o saldo disponivel. O tracker de pedido mostra em tempo real onde esta sua entrega com animacao ao vivo. Temos as lojas favoritas, 3 enderecos salvos marcando qual e o padrao, cartoes salvos, historico completo de 7 pedidos com status colorido - entregue em verde, a caminho em amarelo e cancelado em vermelho. E nas configuracoes voce altera dados pessoais, cidade de entrega, preferencias e acessa o suporte.</div>
+
+<hr class="page-break">
+
+<!-- ===== PARTE 2 ===== -->
+<h2>Parte 2 - Painel do Entregador</h2>
+
+<div class="scene">
+    <div class="scene-header">
+        <span class="scene-num">CENA 8</span>
+        <span class="scene-title">Painel do Entregador</span>
+        <span class="scene-time">8:30 - 10:30</span>
+    </div>
+    <div class="scene-body">Abrir e mostrar o painel completo do entregador.</div>
+</div>
+
+<div class="action">Abra o arquivo <strong>entregador.html</strong> no navegador. (Ou volte a home e clique no banner "Seja um Entregador".)</div>
+
+<div class="narration">Agora vamos ver como funciona o painel do entregador. Ele tem um tema escuro profissional.</div>
+
+<h4>8.1 - Status Online/Offline</h4>
+<div class="action">Mostre o toggle verde "Online" e clique nele para desligar. Depois ligue novamente.</div>
+<div class="narration">O entregador controla se esta disponivel com esse botao. Quando online, o ponto verde fica pulsando e ele recebe pedidos. Quando offline, fica invisivel.</div>
+
+<h4>8.2 - Ganhos do Dia</h4>
+<div class="action">Mostre o card laranja com R$ 187,50.</div>
+<div class="narration">O card principal mostra os ganhos do dia: R$ 187,50 com 12 entregas, avaliacao 4.9, 98% de aceitacao e 6 horas online. Abaixo, os resumos rapidos: R$ 3.420 na semana, tempo medio de 22 minutos, 48 km percorridos e bonus 3x ativo.</div>
+
+<h4>8.3 - Entrega em Andamento</h4>
+<div class="action">Mostre o card de entrega ativa com a barra animada.</div>
+<div class="narration">Aqui temos a entrega atual em tempo real. Mostra o cliente, os botoes para ligar ou mandar mensagem, a rota visual do ponto de coleta ate o destino com a distancia, e os botoes para reportar problema ou confirmar entrega.</div>
+
+<h4>8.4 - Pedidos Disponiveis</h4>
+<div class="action">Mostre os 3 pedidos disponiveis com botoes Aceitar/Recusar.</div>
+<div class="narration">Novos pedidos aparecem aqui com a loja, o valor que o entregador vai ganhar, a distancia, o tempo estimado e a quantidade de itens. O entregador de hamburgueria ate mostra um bonus 2x. Basta aceitar ou recusar.</div>
+
+<h4>8.5 - Grafico Semanal</h4>
+<div class="action">Mostre o grafico de barras com os ganhos de cada dia.</div>
+<div class="narration">O grafico mostra quanto ganhou em cada dia da semana. A barra de hoje fica destacada em laranja.</div>
+
+<h4>8.6 - Aba Ganhos</h4>
+<div class="action">Clique na aba <strong>"Ganhos"</strong> na barra inferior.</div>
+<div class="narration">Aqui tem o desempenho detalhado com barras de progresso: avaliacao 4.9, taxa de aceitacao 98%, tempo medio 22 minutos e 143 entregas no mes. Abaixo tem o resumo financeiro com ganhos do mes, bonus e gorjetas, media por entrega e proximo saque. E as metas mensais para ganhar bonus extra.</div>
+
+<h4>8.7 - Aba Perfil com Categorias de Veiculo</h4>
+<div class="action">Clique na aba <strong>"Perfil"</strong>. Role ate <strong>"Categoria de Veiculo"</strong>.</div>
+<div class="narration">No perfil temos os dados pessoais, veiculo e conta bancaria. O destaque sao as categorias de veiculo: bicicleta para entregas leves ate 5 km, moto para agilidade ate 15 km, carro para pedidos grandes ate 30 km, van para cargas volumosas ate 50 km, caminhao para mudancas e cargas pesadas sem limite, e patinete para entregas ultra rapidas ate 3 km.</div>
+
+<div class="action">Clique em <strong>"Carro"</strong> e depois em <strong>"Bicicleta"</strong> para mostrar a troca.</div>
+
+<hr class="page-break">
+
+<!-- ===== PARTE 3 ===== -->
+<h2>Parte 3 - Painel do Lojista</h2>
+
+<div class="scene">
+    <div class="scene-header">
+        <span class="scene-num">CENA 9</span>
+        <span class="scene-title">Cadastro do Lojista</span>
+        <span class="scene-time">10:30 - 12:30</span>
+    </div>
+    <div class="scene-body">Fluxo completo de cadastro de uma loja nova.</div>
+</div>
+
+<div class="action">Abra o arquivo <strong>lojista.html</strong> no navegador.</div>
+
+<div class="narration">Agora vamos ver o painel do lojista. Ao abrir pela primeira vez, aparece o fluxo de cadastro completo.</div>
+
+<h4>9.1 - Tela de Boas-vindas</h4>
+<div class="action">Mostre a tela inicial com o icone da loja e os 4 beneficios.</div>
+<div class="narration">A tela de boas-vindas mostra os beneficios de cadastrar sua loja: painel completo, entregadores prontos 24h, recebimento rapido via PIX e relatorios de vendas. Clique em "Comecar cadastro".</div>
+
+<div class="action">Clique em <strong>"Comecar cadastro"</strong>.</div>
+
+<h4>9.2 - Passo 1: Dados do Responsavel</h4>
+<div class="action">Preencha os campos: nome, CNPJ, email, telefone, senha. Clique em <strong>"Continuar"</strong>.</div>
+<div class="narration">No primeiro passo, o lojista informa seus dados pessoais: nome completo, CNPJ ou CPF, email, telefone e cria uma senha. A barra de progresso vai acompanhando cada etapa.</div>
+
+<h4>9.3 - Passo 2: Nicho da Loja</h4>
+<div class="action">Mostre o grid com todas as 46 categorias. Selecione uma, por exemplo <strong>"Padaria"</strong>.</div>
+<div class="narration">Agora o lojista escolhe o nicho da sua loja entre 46 opcoes: supermercado, restaurante, farmacia, pet shop, padaria, acougue, hortifruti, bebidas, eletronicos, moda, livraria, floricultura, brinquedos, esportes, cosmeticos, ferragens, papelaria, moveis, saude natural, limpeza, bebe, auto pecas, pesca, jardinagem, instrumentos, games, gourmet, doces, organicos, congelados, mercados internacionais, conveniencia, atacado, vinhos, cafeteria, sorveteria, pizzaria, hamburgueria, sushi, vegano e fitness. Cada tipo de negocio tem seu lugar aqui.</div>
+
+<div class="action">Clique em <strong>"Continuar"</strong>.</div>
+
+<h4>9.4 - Passo 3: Dados da Loja</h4>
+<div class="action">Preencha: nome da loja, endereco, CEP, cidade, horario. Clique em <strong>"Continuar"</strong>.</div>
+<div class="narration">Agora preenche os dados da loja: nome, endereco completo, CEP, cidade, horario de funcionamento, uma descricao e pode enviar a logo. Note que o nicho escolhido aparece destacado no topo.</div>
+
+<h4>9.5 - Passo 4: Dados Bancarios</h4>
+<div class="action">Selecione um banco, preencha agencia, conta e chave PIX. Clique em <strong>"Continuar"</strong>.</div>
+<div class="narration">O lojista configura como vai receber: seleciona o banco, agencia, conta, tipo de conta e a chave PIX para recebimento rapido em ate 1 dia util.</div>
+
+<h4>9.6 - Passo 5: Termos e Condicoes</h4>
+<div class="action">Mostre o resumo do cadastro. Clique nos 3 checkboxes para aceitar os termos. Clique em <strong>"Finalizar Cadastro"</strong>.</div>
+<div class="narration">No ultimo passo, aparece o resumo completo do cadastro. O lojista precisa aceitar os termos de uso, a politica de privacidade e a taxa de 12% sobre as vendas. Ao clicar nos 3 checkboxes, o botao de finalizar fica ativo.</div>
+
+<h4>9.7 - Cadastro Concluido</h4>
+<div class="action">Mostre a tela de sucesso com os proximos passos. Clique em <strong>"Acessar Painel da Loja"</strong>.</div>
+<div class="narration">Pronto! O cadastro foi enviado. A loja sera analisada em ate 24 horas. Os proximos passos sao: receber o email de confirmacao, adicionar os produtos e comecar a vender!</div>
+
+<!-- CENA 10 -->
+<div class="scene">
+    <div class="scene-header">
+        <span class="scene-num">CENA 10</span>
+        <span class="scene-title">Painel do Lojista (Dashboard)</span>
+        <span class="scene-time">12:30 - 14:00</span>
+    </div>
+    <div class="scene-body">Mostrar o dashboard completo do lojista.</div>
+</div>
+
+<h4>10.1 - Dashboard</h4>
+<div class="action">Mostre o dashboard com toggle da loja, card de faturamento, quick stats e pedidos ativos.</div>
+<div class="narration">Apos o cadastro, o lojista acessa o dashboard. No topo tem o toggle para abrir ou fechar a loja. O card mostra o faturamento de R$ 2.847 hoje, com 34 pedidos, avaliacao 4.8 e ticket medio de R$ 83. Os pedidos ativos mostram o status: "Novo" com botoes aceitar/recusar, "Preparando" com botao de pronto, e "Pronto" com botao de chamar entregador.</div>
+
+<h4>10.2 - Aba Pedidos</h4>
+<div class="action">Clique na aba <strong>"Pedidos"</strong>.</div>
+<div class="narration">Aqui tem todos os pedidos com nome do cliente, itens, valor total e status. O lojista gerencia cada etapa da producao.</div>
+
+<h4>10.3 - Aba Produtos</h4>
+<div class="action">Clique na aba <strong>"Produtos"</strong>.</div>
+<div class="narration">Na aba de produtos, o lojista vê todos os itens cadastrados com nome, descricao, preco e estoque. O estoque mostra em verde quando esta OK, amarelo quando esta baixo e vermelho quando esgotou. Tem o botao para adicionar novos produtos.</div>
+
+<h4>10.4 - Aba Perfil com Nicho</h4>
+<div class="action">Clique na aba <strong>"Perfil"</strong>. Mostre o grid de nichos e as configuracoes.</div>
+<div class="narration">No perfil, o lojista pode trocar o nicho da loja a qualquer momento entre as 46 categorias. Abaixo tem os dados da loja, desempenho com barras de progresso, resumo financeiro com faturamento, saques, comissao e notas fiscais. E as configuracoes de entrega, pagamento, promocoes e equipe.</div>
+
+<div class="action">Clique em um nicho diferente, como <strong>"Pizzaria"</strong>, para mostrar que o logo e nome mudam automaticamente.</div>
+
+<hr class="page-break">
+
+<!-- ===== ENCERRAMENTO ===== -->
+<h2>Encerramento</h2>
+
+<div class="scene">
+    <div class="scene-header">
+        <span class="scene-num">CENA 11</span>
+        <span class="scene-title">Encerramento</span>
+        <span class="scene-time">14:00 - 14:30</span>
+    </div>
+    <div class="scene-body">Resumo final e chamada para acao.</div>
+</div>
+
+<div class="narration">Esse foi o Delivery Geral - um app completo com 3 paineis: o app do cliente com 46 categorias, 55 lojas e mais de 370 produtos, promocoes locais com ranking dos menores precos e carrinho completo com checkout. O painel do entregador com controle online/offline, tracker em tempo real, ganhos diarios, grafico semanal e 6 categorias de veiculo. E o painel do lojista com cadastro em 5 passos, dashboard de vendas, gestao de pedidos e produtos, e 46 nichos de mercado. Tudo em um so app, tudo entregue na sua porta.</div>
+
+<hr>
+
+<h2>Checklist antes de Gravar</h2>
+<ul>
+    <li>Abrir <strong>index.html</strong> no navegador (de preferencia Chrome com DevTools em modo mobile 480px)</li>
+    <li>Limpar o localStorage do navegador para o onboarding do lojista aparecer (F12 > Application > Storage > Clear)</li>
+    <li>Ter os 3 arquivos prontos: <strong>index.html</strong>, <strong>entregador.html</strong>, <strong>lojista.html</strong></li>
+    <li>Usar um gravador de tela (OBS Studio, ou Win+G no Windows)</li>
+    <li>Gravar com resolucao de celular (480px largura) para parecer um app real</li>
+    <li>Falar devagar e pausar entre cada secao</li>
+</ul>
+
+<h2>Resumo dos Numeros do App</h2>
+<table>
+    <tr><th>Item</th><th>Quantidade</th></tr>
+    <tr><td>Categorias de mercado</td><td>46</td></tr>
+    <tr><td>Lojas cadastradas</td><td>55</td></tr>
+    <tr><td>Produtos totais</td><td>371+</td></tr>
+    <tr><td>Categorias de veiculo (entregador)</td><td>6</td></tr>
+    <tr><td>Nichos para lojistas</td><td>46</td></tr>
+    <tr><td>Formas de pagamento</td><td>4 (PIX, credito, debito, dinheiro)</td></tr>
+    <tr><td>Paineis do app</td><td>3 (Cliente, Entregador, Lojista)</td></tr>
+    <tr><td>Passos do cadastro lojista</td><td>5 + boas-vindas + conclusao</td></tr>
+</table>
+
+<div style="text-align:center;margin-top:40px;padding:24px;background:#FFF3ED;border-radius:16px">
+    <div style="font-size:2rem;margin-bottom:8px">🛒</div>
+    <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;color:#FF4D00">Delivery Geral</div>
+    <div style="font-size:.85rem;color:#666;margin-top:4px">Tudo entregue na sua porta</div>
+</div>
+
+</body>
+</html>

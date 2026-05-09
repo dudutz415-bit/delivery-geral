@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase - Passo a Passo Visual</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF4D00;
+            --blue: #1A73E8;
+            --green: #34A853;
+            --bg: #F8F9FA;
+            --surface: #FFFFFF;
+            --text: #202124;
+            --text-2: #5F6368;
+            --border: #DADCE0;
+            --radius: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--blue), #4285F4);
+            color: white;
+            border-radius: 0 0 var(--radius) var(--radius);
+            margin: -20px -20px 30px;
+        }
+        .header h1 { font-family: 'Sora', sans-serif; font-size: 1.8rem; }
+        .header p { opacity: 0.9; margin-top: 8px; }
+        
+        .step {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+        .step-num {
+            display: inline-flex;
+            width: 32px;
+            height: 32px;
+            background: var(--blue);
+            color: white;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        .step h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.15rem;
+            display: inline;
+        }
+        
+        /* Simulação de tela do Firebase */
+        .screen-sim {
+            background: #F8F9FA;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            margin: 16px 0;
+            overflow: hidden;
+            font-size: 0.85rem;
+        }
+        .screen-header {
+            background: white;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .screen-header .logo {
+            width: 32px;
+            height: 32px;
+            background: #FFA000;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .screen-body {
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .screen-body h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        .screen-body p {
+            color: var(--text-2);
+            font-size: 0.85rem;
+        }
+        
+        /* Botões simulados */
+        .btn-sim {
+            display: inline-block;
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-top: 16px;
+            cursor: default;
+        }
+        .btn-blue {
+            background: var(--blue);
+            color: white;
+        }
+        .btn-green {
+            background: var(--green);
+            color: white;
+        }
+        .btn-white {
+            background: white;
+            color: var(--blue);
+            border: 1px solid var(--border);
+        }
+        
+        .highlight {
+            background: #FFF8E1;
+            border-left: 4px solid var(--primary);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 12px 0;
+            font-size: 0.9rem;
+        }
+        .highlight strong {
+            color: var(--primary);
+        }
+        
+        .arrow {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--text-3);
+            margin: 8px 0;
+        }
+        
+        .final-box {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-radius: var(--radius);
+            padding: 30px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .final-box h2 {
+            font-family: 'Sora', sans-serif;
+            color: #2E7D32;
+        }
+        .final-box p {
+            color: #388E3C;
+            margin-top: 8px;
+        }
+        
+        code {
+            background: #ECEFF1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Guia Visual Firebase</h1>
+        <p>O que você deve estar vendo na tela e onde clicar</p>
+    </div>
+
+    <!-- PASSO 1 -->
+    <div class="step">
+        <span class="step-num">1</span>
+        <h2>Tela inicial do Firebase</h2>
+        
+        <div class="screen-sim">
+            <div class="screen-header">
+                <div class="logo">🔥</div>
+                <span>Firebase Console</span>
+            </div>
+            <div class="screen-body">
+                <h3>Olá, dudu</h3>
+                <p>É ótimo ter você no Firebase!</p>
+                <div style="margin-top: 20px; padding: 20px; background: white; border-radius: 8px; border: 2px dashed var(--border);">
+                    <p style="color: var(--text-2);">Você ainda não tem projetos</p>
+                    <div class="btn-sim btn-blue">Criar projeto</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="highlight">
+            <strong>👉 Onde clicar:</strong> Procure o botão <strong>"Criar projeto"</strong> (pode estar no centro da tela ou no canto superior direito). Se não aparecer, procure um <strong>ícone de "+"</strong> ou <strong>"Adicionar"</strong>.
+        </div>
+    </div>
+
+    <div class="arrow">⬇️</div>
+
+    <!-- PASSO 2 -->
+    <div class="step">
+        <span class="step-num">2</span>
+        <h2>Nomear o projeto</h2>
+        
+        <div class="screen-sim">
+            <div class="screen-header">
+                <div class="logo">🔥</div>
+                <span>Criar projeto</span>
+            </div>
+            <div class="screen-body" style="text-align: left; max-width: 400px; margin: 0 auto;">
+                <p style="margin-bottom: 8px; font-weight: 600;">Nome do projeto</p>
+                <div style="border: 1px solid var(--border); padding: 10px; border-radius: 4px; background: white;">
+                    delivery-geral
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-2); margin-top: 6px;">ID do projeto: delivery-geral</p>
+                <br>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+                    <input type="checkbox"> Aceito os termos
+                </label>
+                <div style="text-align: right; margin-top: 16px;">
+                    <span class="btn-sim btn-white">Cancelar</span>
+                    <span class="btn-sim btn-blue">Continuar</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="highlight">
+            <strong>👉 Digite:</strong> <code>delivery-geral</code> no campo de nome. Desmarque o Google Analytics se aparecer. Clique em <strong>"Continuar"</strong> ou <strong>"Criar projeto"</strong>.
+        </div>
+    </div>
+
+    <div class="arrow">⬇️</div>
+
+    <!-- PASSO 3 -->
+    <div class="step">
+        <span class="step-num">3</span>
+        <h2>Aguardar criação</h2>
+        
+        <div class="screen-sim">
+            <div class="screen-body">
+                <div style="font-size: 3rem; margin-bottom: 12px;">⏳</div>
+                <h3>Seu projeto está sendo preparado...</h3>
+                <p style="margin-top: 8px;">Isso leva alguns segundos</p>
+            </div>
+        </div>
+        
+        <div class="highlight">
+            <strong>👉 Aguarde</strong> carregar. Quando terminar, você verá o <strong>painel do projeto</strong>.
+        </div>
+    </div>
+
+    <div class="arrow">⬇️</div>
+
+    <!-- PASSO 4 -->
+    <div class="step">
+        <span class="step-num">4</span>
+        <h2>Painel do projeto - Registrar app Web</h2>
+        
+        <div class="screen-sim">
+            <div class="screen-header">
+                <div class="logo">🔥</div>
+                <span>delivery-geral</span>
+            </div>
+            <div class="screen-body">
+                <p style="color: var(--text-2); margin-bottom: 16px;">Comece adicionando o Firebase ao seu app</p>
+                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                    <div style="padding: 20px; background: white; border-radius: 12px; border: 2px solid var(--blue); width: 140px;">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">🌐</div>
+                        <strong style="color: var(--blue);">&lt;/&gt;</strong>
+                        <p style="font-size: 0.8rem; margin-top: 4px;">Web</p>
+                    </div>
+                    <div style="padding: 20px; background: white; border-radius: 12px; border: 1px solid var(--border); width: 140px; opacity: 0.6;">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">📱</div>
+                        <p style="font-size: 0.8rem;">Android</p>
+                    </div>
+                    <div style="padding: 20px; background: white; border-radius: 12px; border: 1px solid var(--border); width: 140px; opacity: 0.6;">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">🍎</div>
+                        <p style="font-size: 0.8rem;">iOS</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="highlight">
+            <strong>👉 Clique no ícone</strong> <code>&lt;/&gt;</code> (Web). É o primeiro ícone, parece código.
+        </div>
+    </div>
+
+    <div class="arrow">⬇️</div>
+
+    <!-- PASSO 5 -->
+    <div class="step">
+        <span class="step-num">5</span>
+        <h2>Copiar a configuração</h2>
+        
+        <div class="screen-sim">
+            <div class="screen-body" style="text-align: left; background: #1A1A2E; color: #E0E0E0; font-family: monospace;">
+                <p style="color: #888; margin-bottom: 12px;">// Seu código de configuração do Firebase</p>
+                <p>const firebaseConfig = {</p>
+                <p style="padding-left: 16px;">apiKey: <span style="color: #CE9178;">"AIzaSyB..."</span>,</p>
+                <p style="padding-left: 16px;">authDomain: <span style="color: #CE9178;">"delivery-geral.firebaseapp.com"</span>,</p>
+                <p style="padding-left: 16px;">projectId: <span style="color: #CE9178;">"delivery-geral"</span>,</p>
+                <p style="padding-left: 16px;">storageBucket: <span style="color: #CE9178;">"delivery-geral.appspot.com"</span>,</p>
+                <p style="padding-left: 16px;">messagingSenderId: <span style="color: #B5CEA8;">"123456789"</span>,</p>
+                <p style="padding-left: 16px;">appId: <span style="color: #CE9178;">"1:123..."</span></p>
+                <p>};</p>
+                <div style="text-align: center; margin-top: 16px;">
+                    <span class="btn-sim btn-green">📋 Copiar</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="highlight">
+            <strong>👉 Clique em "Copiar"</strong> ou selecione todo o código e cole nos arquivos:
+            <ul style="margin-top: 8px; padding-left: 20px;">
+                <li><code>firebase-config.js</code></li>
+                <li><code>entregador.html</code></li>
+                <li><code>lojista.html</code></li>
+                <li><code>admin.html</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="final-box">
+        <h2>🎉 Depois disso...</h2>
+        <p>Volte ao guia anterior (<code>guia-firebase.html</code>) para completar os passos 3, 4, 5 e 6 (Authentication, Firestore, FCM e hospedagem).</p>
+        <p style="margin-top: 12px; font-size: 0.9rem;">Ou me diga qual passo travou que eu te ajudo!</p>
+    </div>
+</div>
+
+</body>
+</html>

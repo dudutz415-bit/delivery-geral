@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia Firebase - Delivery Geral</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF4D00;
+            --primary-dark: #E04400;
+            --primary-light: #FF8F5E;
+            --bg: #FAFAF8;
+            --surface: #FFFFFF;
+            --surface-2: #F5F3EF;
+            --text: #1A1A1A;
+            --text-2: #6B6B6B;
+            --text-3: #A0A0A0;
+            --border: #EEECE8;
+            --green: #22C55E;
+            --blue: #3B82F6;
+            --purple: #8B5CF6;
+            --yellow: #F59E0B;
+            --radius: 20px;
+            --radius-sm: 12px;
+            --shadow: 0 2px 16px rgba(0,0,0,0.06);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px 30px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 0 0 var(--radius) var(--radius);
+            margin: -20px -20px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1), transparent 60%);
+        }
+        .header-icon {
+            width: 64px;
+            height: 64px;
+            background: white;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 2rem;
+        }
+        .header h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+        .header p {
+            opacity: 0.85;
+            margin-top: 6px;
+            font-size: 0.95rem;
+        }
+        .progress-bar {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .progress-dot {
+            width: 32px;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.3);
+            transition: 0.3s;
+        }
+        .progress-dot.active {
+            background: white;
+            width: 48px;
+        }
+        .progress-dot.done {
+            background: var(--green);
+        }
+
+        /* Step Card */
+        .step-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .step-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+        .step-card.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255,77,0,0.08);
+        }
+        .step-card.completed {
+            border-color: var(--green);
+            opacity: 0.7;
+        }
+        .step-card.completed .step-title {
+            text-decoration: line-through;
+            color: var(--text-3);
+        }
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .step-num {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .step-num.done {
+            background: var(--green);
+        }
+        .step-title {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+        .step-subtitle {
+            color: var(--text-3);
+            font-size: 0.85rem;
+            margin-top: 2px;
+        }
+        .step-body {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            animation: slideDown 0.3s ease;
+        }
+        .step-card.active .step-body {
+            display: block;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Content styles */
+        .step-body h4 {
+            font-family: 'Sora', sans-serif;
+            font-size: 0.95rem;
+            margin: 16px 0 8px;
+            color: var(--text);
+        }
+        .step-body h4:first-child {
+            margin-top: 0;
+        }
+        .step-body p, .step-body li {
+            color: var(--text-2);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        .step-body ol, .step-body ul {
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+        .step-body li {
+            margin-bottom: 6px;
+        }
+        .step-body a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .step-body a:hover {
+            text-decoration: underline;
+        }
+        .code-block {
+            background: #1A1A2E;
+            color: #E0E0E0;
+            padding: 14px 16px;
+            border-radius: var(--radius-sm);
+            font-family: 'Courier New', monospace;
+            font-size: 0.82rem;
+            overflow-x: auto;
+            margin: 10px 0;
+            position: relative;
+        }
+        .code-block .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .tip-box {
+            background: linear-gradient(135deg, #FFF3ED, #FFF7F0);
+            border-left: 4px solid var(--primary);
+            padding: 14px 16px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin: 12px 0;
+            font-size: 0.88rem;
+        }
+        .tip-box strong {
+            color: var(--primary);
+        }
+        .warn-box {
+            background: linear-gradient(135deg, #FEF3C7, #FFF7ED);
+            border-left: 4px solid var(--yellow);
+            padding: 14px 16px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin: 12px 0;
+            font-size: 0.88rem;
+        }
+        .success-box {
+            background: linear-gradient(135deg, #F0FDF4, #ECFDF5);
+            border-left: 4px solid var(--green);
+            padding: 14px 16px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin: 12px 0;
+            font-size: 0.88rem;
+        }
+        .img-placeholder {
+            background: var(--surface-2);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-sm);
+            padding: 30px;
+            text-align: center;
+            color: var(--text-3);
+            margin: 12px 0;
+            font-size: 0.85rem;
+        }
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+        .btn-action:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: var(--surface-2);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+        .checkbox-wrapper {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .checkbox-wrapper label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-2);
+        }
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-3);
+            font-size: 0.85rem;
+        }
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Completion modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal {
+            background: white;
+            border-radius: var(--radius);
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: modalIn 0.4s ease;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-emoji {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+        .modal h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+        .modal p {
+            color: var(--text-2);
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="header-icon">🔥</div>
+        <h1>Guia Firebase</h1>
+        <p>6 passos para ativar o backend do Delivery Geral</p>
+        <div class="progress-bar">
+            <div class="progress-dot active" id="dot-1"></div>
+            <div class="progress-dot" id="dot-2"></div>
+            <div class="progress-dot" id="dot-3"></div>
+            <div class="progress-dot" id="dot-4"></div>
+            <div class="progress-dot" id="dot-5"></div>
+            <div class="progress-dot" id="dot-6"></div>
+        </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="step-card active" id="step-1" onclick="toggleStep(1)">
+        <div class="step-header">
+            <div class="step-num" id="num-1">1</div>
+            <div>
+                <div class="step-title">Criar projeto no Firebase</div>
+                <div class="step-subtitle">Conta Google + novo projeto</div>
+            </div>
+        </div>
+        <div class="step-body">
+            <h4>📋 O que voce precisa</h4>
+            <ul>
+                <li>Uma conta Google (Gmail)</li>
+                <li>5 minutos de tempo</li>
+            </ul>
+
+            <h4>🚀 Passo a passo</h4>
+            <ol>
+                <li>Acesse <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a></li>
+                <li>Faca login com sua conta Google</li>
+                <li>Clique em <strong>"Criar projeto"</strong></li>
+                <li>Digite o nome: <strong>delivery-geral</strong></li>
+                <li>Desative Google Analytics (ou deixe ativado)</li>
+                <li>Clique em <strong>"Criar projeto"</strong> e aguarde</li>
+            </ol>
+
+            <div class="success-box">
+                <strong>✅ Pronto!</strong> Voce ja tem o projeto criado. Agora vamos registrar o app.
+            </div>
+
+            <div class="checkbox-wrapper">
+                <label>
+                    <input type="checkbox" onchange="completeStep(1)">
+                    <span>Projeto "delivery-geral" criado no Firebase</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-card" id="step-2" onclick="toggleStep(2)">
+        <div class="step-header">
+            <div class="step-num" id="num-2">2</div>
+            <div>
+                <div class="step-title">Registrar app Web e copiar configuracao</div>
+                <div class="step-subtitle">O codigo que conecta seu app ao Firebase</div>
+            </div>
+        </div>
+        <div class="step-body">
+            <h4>🚀 Passo a passo</h4>
+            <ol>
+                <li>No painel do Firebase, clique no icone <strong>"&lt;/&gt;"</strong> (Adicionar app da Web)</li>
+                <li>De um apelido: <strong>Delivery Geral Web</strong></li>
+                <li>Clique em <strong>"Registrar app"</strong></li>
+                <li>Voce vera um codigo assim:</li>
+            </ol>
+
+            <div class="code-block">
+                <button class="copy-btn" onclick="event.stopPropagation(); copyCode(this)">Copiar</button>
+const firebaseConfig = {
+  apiKey: "AIzaSyB...",
+  authDomain: "delivery-geral.firebaseapp.com",
+  projectId: "delivery-geral",
+  storageBucket: "delivery-geral.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef123"
+};
+            </div>
+
+            <ol start="5">
+                <li><strong>Copie esse codigo inteiro</strong></li>
+                <li>Abra o arquivo <strong>firebase-config.js</strong> no seu computador</li>
+                <li><strong>Cole substituindo</strong> o placeholder que esta la</li>
+                <li>Faca o mesmo nos arquivos <strong>entregador.html</strong>, <strong>lojista.html</strong> e <strong>admin.html</strong></li>
+            </ol>
+
+            <div class="warn-box">
+                <strong>⚠️ Importante:</strong> A mesma configuracao deve estar em TODOS os arquivos. Se mudar um, mude todos!
+            </div>
+
+            <div class="checkbox-wrapper">
+                <label>
+                    <input type="checkbox" onchange="completeStep(2)">
+                    <span>Configuracao copiada para todos os arquivos</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-card" id="step-3" onclick="toggleStep(3)">
+        <div class="step-header">
+            <div class="step-num" id="num-3">3</div>
+            <div>
+                <div class="step-title">Ativar Authentication e Firestore</div>
+                <div class="step-subtitle">Login de usuarios e banco de dados</div>
+            </div>
+        </div>
+        <div class="step-body">
+            <h4>🔐 Ativar Authentication (login)</h4>
+            <ol>
+                <li>No menu lateral do Firebase, clique em <strong>"Authentication"</strong></li>
+                <li>Clique em <strong>"Comecar"</strong></li>
+                <li>Selecione <strong>"Email/Senha"</strong> na lista de provedores</li>
+                <li>Ative o primeiro toggle (Email/Senha)</li>
+                <li>Clique em <strong>"Salvar"</strong></li>
+            </ol>
+
+            <h4>💾 Ativar Firestore Database</h4>
+            <ol>
+                <li>No menu lateral, clique em <strong>"Firestore Database"</strong></li>
+                <li>Clique em <strong>"Criar banco de dados"</strong></li>
+                <li>Escolha <strong>"Iniciar no modo de teste"</strong></li>
+                <li>Selecione a regiao <strong>southamerica-east1</strong> (Sao Paulo) ou a mais proxima</li>
+                <li>Clique em <strong>"Ativar"</strong></li>
+            </ol>
+
+            <div class="tip-box">
+                <strong>💡 Dica:</strong> O "modo de teste" permite leitura/escrita livre por 30 dias. Depois voce publica as regras de seguranca do arquivo <strong>firestore.rules</strong>.
+            </div>
+
+            <div class="checkbox-wrapper">
+                <label>
+                    <input type="checkbox" onchange="completeStep(3)">
+                    <span>Authentication e Firestore ativados</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step-card" id="step-4" onclick="toggleStep(4)">
+        <div class="step-header">
+            <div class="step-num" id="num-4">4</div>
+            <div>
+                <div class="step-title">Configurar Notificacoes Push (FCM)</div>
+                <div class="step-subtitle">Avisos no celular para cliente e entregador</div>
+            </div>
+        </div>
+        <div class="step-body">
+            <h4>🚀 Passo a passo</h4>
+            <ol>
+                <li>No Firebase Console, clique na <strong>engrenagem</strong> (Configuracoes do projeto)</li>
+                <li>Va na aba <strong>"Cloud Messaging"</strong></li>
+                <li>Role ate <strong>"Pares de chaves Web Push"</strong></li>
+                <li>Clique em <strong>"Gerar par de chaves"</strong></li>
+                <li>Copie a <strong>chave publica</strong> (comeca com B...)</li>
+            </ol>
+
+            <div class="code-block">
+                <button class="copy-btn" onclick="event.stopPropagation(); copyCode(this)">Copiar</button>
+messaging.usePublicVapidKey("COLE_AQUI_SUA_CHAVE_PUBLICA");
+            </div>
+
+            <ol start="6">
+                <li>Abra o arquivo <strong>firebase-config.js</strong></li>
+                <li>Substitua <strong>"SUA_CHAVE_VAPID_AQUI"</strong> pela chave que voce copiou</li>
+            </ol>
+
+            <div class="tip-box">
+                <strong>💡 Dica:</strong> As notificacoes so funcionam quando o app esta hospedado online (HTTPS). No computador local nao funcionam.
+            </div>
+
+            <div class="checkbox-wrapper">
+                <label>
+                    <input type="checkbox" onchange="completeStep(4)">
+                    <span>Chave VAPID configurada no firebase-config.js</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step-card" id="step-5" onclick="toggleStep(5)">
+        <div class="step-header">
+            <div class="step-num" id="num-5">5</div>
+            <div>
+                <div class="step-title">Publicar regras de seguranca</div>
+                <div class="step-subtitle">Protege os dados de cada tipo de usuario</div>
+            </div>
+        </div>
+        <div class="step-body">
+            <h4>🚀 Passo a passo</h4>
+            <ol>
+                <li>No Firebase Console, va em <strong>Firestore Database</strong></li>
+                <li>Clique na aba <strong>"Regras"</strong></li>
+                <li>Voce vera um texto padrao. <strong>Apague tudo</strong></li>
+                <li>Abra o arquivo <strong>firestore.rules</strong> do seu computador</li>
+                <li>Copie TODO o conteudo e cole no Firebase</li>
+                <li>Clique em <strong>"Publicar"</strong></li>
+            </ol>
+
+            <div class="success-box">
+                <strong>✅ O que essas regras fazem?</strong><br>
+                Clientes so veem seus proprios pedidos. Lojistas so gerenciam sua loja. Entregadores so veem entregas disponiveis. Admins veem tudo.
+            </div>
+
+            <div class="checkbox-wrapper">
+                <label>
+                    <input type="checkbox" onchange="completeStep(5)">
+                    <span>Regras publicadas no Firebase</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step-card" id="step-6" onclick="toggleStep(6)">
+        <div class="step-header">
+            <div class="step-num" id="num-6">6</div>
+            <div>
+                <div class="step-title">Hospedar online e testar</div>
+                <div class="step-subtitle">Netlify (gratis) ou Firebase Hosting</div>
+            </div>
+        </div>
+        <div class="step-body">
+            <h4>🌐 Opcao 1: Netlify (mais facil)</h4>
+            <ol>
+                <li>Acesse <a href="https://app.netlify.com/drop" target="_blank">app.netlify.com/drop</a></li>
+                <li>Arraste a pasta <strong>delivery-geral</strong> inteira para a pagina</li>
+                <li>Pronto! O app ja esta online com URL propria</li>
+                <li>Copie o link e teste no celular</li>
+            </ol>
+
+            <a href="https://app.netlify.com/drop" target="_blank" class="btn-action" onclick="event.stopPropagation()">
+                Abrir Netlify Drop
+            </a>
+
+            <h4>🔥 Opcao 2: Firebase Hosting</h4>
+            <ol>
+                <li>Instale o Node.js em <a href="https://nodejs.org" target="_blank">nodejs.org</a></li>
+                <li>Abra o Prompt de Comando e digite:
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="event.stopPropagation(); copyCode(this)">Copiar</button>
+npm install -g firebase-tools
+firebase login
+firebase init hosting
+firebase deploy
+                    </div>
+                </li>
+            </ol>
+
+            <h4>🧪 Testar o app</h4>
+            <ol>
+                <li>Abra o link do app no navegador do celular</li>
+                <li>Crie uma conta na tela de cadastro</li>
+                <li>Faca um pedido de teste</li>
+                <li>Verifique se o pedido aparece no Firebase Console &gt; Firestore Database</li>
+            </ol>
+
+            <div class="tip-box">
+                <strong>💡 Dica:</strong> Para criar o primeiro admin, va no Firebase Console &gt; Authentication, copie o UID do usuario, depois va em Firestore &gt; users &gt; [UID] e mude o campo <strong>role</strong> para <strong>"admin"</strong>.
+            </div>
+
+            <div class="checkbox-wrapper">
+                <label>
+                    <input type="checkbox" onchange="completeStep(6)">
+                    <span>App hospedado e funcionando!</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Delivery Geral v2.0 com Firebase</p>
+        <p style="margin-top:4px">Precisa de ajuda? <a href="https://firebase.google.com/support" target="_blank">Suporte Firebase</a></p>
+    </div>
+</div>
+
+<!-- Completion Modal -->
+<div class="modal-overlay" id="completion-modal">
+    <div class="modal">
+        <div class="modal-emoji">🎉</div>
+        <h2>Parabens!</h2>
+        <p>Voce completou todos os 6 passos. Seu Delivery Geral agora tem backend real!</p>
+        <button class="btn-action" onclick="closeModal()">Continuar</button>
+    </div>
+</div>
+
+<script>
+let currentStep = 1;
+let completedSteps = new Set();
+
+function toggleStep(n) {
+    document.querySelectorAll('.step-card').forEach((card, i) => {
+        if (i + 1 === n) {
+            card.classList.toggle('active');
+        } else {
+            card.classList.remove('active');
+        }
+    });
+    currentStep = n;
+    updateProgress();
+}
+
+function completeStep(n) {
+    const checkbox = document.querySelector(`#step-${n} input[type="checkbox"]`);
+    if (checkbox.checked) {
+        completedSteps.add(n);
+        document.getElementById(`step-${n}`).classList.add('completed');
+        document.getElementById(`num-${n}`).textContent = '✓';
+        document.getElementById(`num-${n}`).classList.add('done');
+
+        // Auto open next step
+        if (n < 6) {
+            setTimeout(() => {
+                toggleStep(n + 1);
+            }, 400);
+        }
+    } else {
+        completedSteps.delete(n);
+        document.getElementById(`step-${n}`).classList.remove('completed');
+        document.getElementById(`num-${n}`).textContent = n;
+        document.getElementById(`num-${n}`).classList.remove('done');
+    }
+    updateProgress();
+
+    if (completedSteps.size === 6) {
+        setTimeout(() => {
+            document.getElementById('completion-modal').classList.add('show');
+        }, 600);
+    }
+}
+
+function updateProgress() {
+    for (let i = 1; i <= 6; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        dot.classList.remove('active', 'done');
+        if (completedSteps.has(i)) {
+            dot.classList.add('done');
+        } else if (i === currentStep) {
+            dot.classList.add('active');
+        }
+    }
+}
+
+function copyCode(btn) {
+    const code = btn.parentElement.innerText.replace('Copiar', '').trim();
+    navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copiado!';
+        setTimeout(() => btn.textContent = 'Copiar', 2000);
+    });
+}
+
+function closeModal() {
+    document.getElementById('completion-modal').classList.remove('show');
+}
+
+// Check local storage for saved progress
+const saved = localStorage.getItem('dg_guide_progress');
+if (saved) {
+    const arr = JSON.parse(saved);
+    arr.forEach(n => {
+        const cb = document.querySelector(`#step-${n} input[type="checkbox"]`);
+        if (cb) {
+            cb.checked = true;
+            completeStep(n);
+        }
+    });
+}
+
+// Save progress
+window.addEventListener('beforeunload', () => {
+    localStorage.setItem('dg_guide_progress', JSON.stringify([...completedSteps]));
+});
+</script>
+
+</body>
+</html>

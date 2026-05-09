@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial - Cadastrar Lojas no Delivery Geral</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0D1117;
+            color: #E6EDF3;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #FF4D00, #FF8F5E);
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: white;
+        }
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+        }
+        .step {
+            background: #161B22;
+            border: 1px solid #30363D;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: #FF4D00;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-right: 12px;
+        }
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #F0F6FC;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .step-content {
+            padding-left: 48px;
+        }
+        .step-content p, .step-content li {
+            color: #8B949E;
+            margin-bottom: 10px;
+        }
+        .step-content ul, .step-content ol {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        .step-content li {
+            margin-bottom: 8px;
+        }
+        .highlight {
+            background: #238636;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .code-block {
+            background: #0D1117;
+            border: 1px solid #30363D;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: #A5D6FF;
+            overflow-x: auto;
+            margin: 12px 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .warning {
+            background: #FFF3ED;
+            border-left: 4px solid #FF4D00;
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin: 15px 0;
+            color: #9A3412;
+        }
+        .warning strong {
+            color: #FF4D00;
+        }
+        .tip {
+            background: #F0F9FF;
+            border-left: 4px solid #0EA5E9;
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin: 15px 0;
+            color: #0369A1;
+        }
+        .tip strong {
+            color: #0EA5E9;
+        }
+        .schema-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+        .schema-table th {
+            background: #21262D;
+            color: #F0F6FC;
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #30363D;
+        }
+        .schema-table td {
+            padding: 10px 12px;
+            border: 1px solid #30363D;
+            color: #C9D1D9;
+        }
+        .schema-table tr:nth-child(even) {
+            background: #161B22;
+        }
+        .schema-table .field-name {
+            color: #FF7B72;
+            font-family: monospace;
+            font-weight: 600;
+        }
+        .schema-table .type {
+            color: #79C0FF;
+            font-family: monospace;
+        }
+        .schema-table .required {
+            color: #FF7B72;
+            font-weight: 600;
+        }
+        .schema-table .optional {
+            color: #8B949E;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-primary {
+            background: #FF4D00;
+            color: white;
+        }
+        .btn-secondary {
+            background: #21262D;
+            color: #E6EDF3;
+            border: 1px solid #30363D;
+        }
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8B949E;
+            border-top: 1px solid #30363D;
+            margin-top: 40px;
+        }
+        .link-highlight {
+            color: #FF7B72;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .link-highlight:hover {
+            text-decoration: underline;
+        }
+        .product-example {
+            background: #0D1117;
+            border: 1px solid #30363D;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.4rem; }
+            .step-content { padding-left: 0; }
+            .step-title { flex-wrap: wrap; }
+            .schema-table { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Tutorial Completo</h1>
+            <p>Como cadastrar lojas e produtos no Delivery Geral via Firebase</p>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">1</span>
+                Acessar o Firebase Console
+            </div>
+            <div class="step-content">
+                <ol>
+                    <li>Abra seu navegador e acesse: <a href="https://console.firebase.google.com" class="link-highlight" target="_blank">console.firebase.google.com</a></li>
+                    <li>Faca login com sua conta Google</li>
+                    <li>Clique no projeto <strong>"delivery-geral-af64e"</strong></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">2</span>
+                Abrir o Firestore Database
+            </div>
+            <div class="step-content">
+                <ol>
+                    <li>No menu lateral esquerdo, clique em <strong>"Firestore Database"</strong></li>
+                    <li>Clique em <strong>"Iniciar colecao"</strong> ou <strong>"+ Iniciar colecao"</strong></li>
+                    <li>Ou, se ja houver colecoes, clique em <strong>"+ Adicionar colecao"</strong></li>
+                </ol>
+                <div class="tip">
+                    <strong>Dica:</strong> O Firestore e o banco de dados em tempo real. Tudo que voce cadastrar aparece instantaneamente no app!
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">3</span>
+                Criar a colecao "stores" (Lojas)
+            </div>
+            <div class="step-content">
+                <ol>
+                    <li>Clique em <strong>"+ Iniciar colecao"</strong></li>
+                    <li>Digite o ID da colecao: <span class="highlight">stores</span></li>
+                    <li>Clique em <strong>"Proximo"</strong></li>
+                    <li>Na tela de adicionar documento, selecione <strong>"Gerar ID automatico"</strong> (ou digite um ID unico, ex: mercado01)</li>
+                </ol>
+
+                <h3 style="color: #F0F6FC; margin: 20px 0 10px; font-size: 1.1rem;">Campos obrigatorios da loja:</h3>
+                <table class="schema-table">
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Tipo</th>
+                            <th>Obrigatorio</th>
+                            <th>Descricao</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="field-name">name</td>
+                            <td class="type">string</td>
+                            <td class="required">Sim</td>
+                            <td>Nome da loja (ex: Supermercado Central)</td>
+                        </tr>
+                        <tr>
+                            <td class="field-name">niche</td>
+                            <td class="type">string</td>
+                            <td class="required">Sim</td>
+                            <td>Categoria da loja. Veja tabela abaixo</td>
+                        </tr>
+                        <tr>
+                            <td class="field-name">email</td>
+                            <td class="type">string</td>
+                            <td class="required">Sim</td>
+                            <td>Email do lojista para login</td>
+                        </tr>
+                        <tr>
+                            <td class="field-name">ownerId</td>
+                            <td class="type">string</td>
+                            <td class="required">Sim</td>
+                            <td>UID do usuario Firebase do lojista</td>
+                        </tr>
+                        <tr>
+                            <td class="field-name">products</td>
+                            <td class="type">array</td>
+                            <td class="optional">Nao</td>
+                            <td>Lista de produtos (veja passo 5)</td>
+                        </tr>
+                        <tr>
+                            <td class="field-name">emoji</td>
+                            <td class="type">string</td>
+                            <td class="optional">Nao</td>
+                            <td>Emoji que representa a loja (ex: 🛒)</td>
+                        </tr>
+                        <tr>
+                            <td class="field-name">bg</td>
+                            <td class="type">string</td>
+                            <td class="optional">Nao</td>
+                            <td>Cor de fundo HEX (ex: #FFF3ED)</td>
+                        </tr>
+                        <tr>
+                            <td class="field-name">rating</td>
+                            <td class="type">number</td>
+                            <td class="optional">Nao</td>
+                            <td>Nota de avaliacao (ex: 4.5)</td>
+                        </tr>
+                        <tr>
+                            <td class="field-name">deliveryTime</td>
+                            <td class="type">string</td>
+                            <td class="optional">Nao</td>
+                            <td>Tempo medio de entrega (ex: 30-45 min)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="color: #F0F6FC; margin: 20px 0 10px; font-size: 1.1rem;">Valores aceitos para o campo "niche":</h3>
+                <table class="schema-table">
+                    <thead>
+                        <tr>
+                            <th>ID (niche)</th>
+                            <th>Nome exibido</th>
+                            <th>Emoji sugerido</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="field-name">supermarket</td><td>Supermercado</td><td>🛒</td></tr>
+                        <tr><td class="field-name">restaurant</td><td>Restaurante</td><td>🍽️</td></tr>
+                        <tr><td class="field-name">pharmacy</td><td>Farmacia</td><td>💊</td></tr>
+                        <tr><td class="field-name">petshop</td><td>Pet Shop</td><td>🐾</td></tr>
+                        <tr><td class="field-name">bakery</td><td>Padaria</td><td>🥐</td></tr>
+                        <tr><td class="field-name">butcher</td><td>Acougue</td><td>🥩</td></tr>
+                        <tr><td class="field-name">greengrocer</td><td>Hortifruti</td><td>🥬</td></tr>
+                        <tr><td class="field-name">beverages</td><td>Bebidas</td><td>🍷</td></tr>
+                        <tr><td class="field-name">electronics</td><td>Eletronicos</td><td>📱</td></tr>
+                        <tr><td class="field-name">fashion</td><td>Moda</td><td>👗</td></tr>
+                        <tr><td class="field-name">books</td><td>Livraria</td><td>📚</td></tr>
+                        <tr><td class="field-name">flowers</td><td>Floricultura</td><td>💐</td></tr>
+                        <tr><td class="field-name">toys</td><td>Brinquedos</td><td>🧸</td></tr>
+                        <tr><td class="field-name">sports</td><td>Esportes</td><td>⚽</td></tr>
+                        <tr><td class="field-name">cosmetics</td><td>Cosmeticos</td><td>💄</td></tr>
+                        <tr><td class="field-name">hardware</td><td>Ferragens</td><td>🔧</td></tr>
+                        <tr><td class="field-name">office</td><td>Papelaria</td><td>📝</td></tr>
+                        <tr><td class="field-name">furniture</td><td>Moveis</td><td>🛋️</td></tr>
+                        <tr><td class="field-name">health</td><td>Saude Natural</td><td>🌿</td></tr>
+                        <tr><td class="field-name">cleaning</td><td>Limpeza</td><td>🧹</td></tr>
+                        <tr><td class="field-name">baby</td><td>Bebe</td><td>🍼</td></tr>
+                        <tr><td class="field-name">autoparts</td><td>Auto Pecas</td><td>🚗</td></tr>
+                        <tr><td class="field-name">fishing</td><td>Pesca</td><td>🎣</td></tr>
+                        <tr><td class="field-name">garden</td><td>Jardinagem</td><td>🌻</td></tr>
+                        <tr><td class="field-name">music</td><td>Instrumentos</td><td>🎸</td></tr>
+                        <tr><td class="field-name">games</td><td>Games</td><td>🎮</td></tr>
+                        <tr><td class="field-name">gourmet</td><td>Gourmet</td><td>🧀</td></tr>
+                        <tr><td class="field-name">sweets</td><td>Doces</td><td>🍰</td></tr>
+                        <tr><td class="field-name">organic</td><td>Organicos</td><td>🥗</td></tr>
+                        <tr><td class="field-name">frozen</td><td>Congelados</td><td>🧊</td></tr>
+                        <tr><td class="field-name">asian</td><td>Mercado Asiatico</td><td>🍜</td></tr>
+                        <tr><td class="field-name">arabic</td><td>Mercado Arabe</td><td>🧆</td></tr>
+                        <tr><td class="field-name">italian</td><td>Mercado Italiano</td><td>🍝</td></tr>
+                        <tr><td class="field-name">mexican</td><td>Mercado Mexicano</td><td>🌮</td></tr>
+                        <tr><td class="field-name">indian</td><td>Mercado Indiano</td><td>🍛</td></tr>
+                        <tr><td class="field-name">japanese</td><td>Mercado Japones</td><td>🍣</td></tr>
+                        <tr><td class="field-name">convenience</td><td>Conveniencia</td><td>🏪</td></tr>
+                        <tr><td class="field-name">wholesale</td><td>Atacado</td><td>📦</td></tr>
+                        <tr><td class="field-name">wine</td><td>Vinhos</td><td>🍷</td></tr>
+                        <tr><td class="field-name">coffee</td><td>Cafeteria</td><td>☕</td></tr>
+                        <tr><td class="field-name">icecream</td><td>Sorveteria</td><td>🍦</td></tr>
+                        <tr><td class="field-name">pizza</td><td>Pizzaria</td><td>🍕</td></tr>
+                        <tr><td class="field-name">burger</td><td>Hamburgueria</td><td>🍔</td></tr>
+                        <tr><td class="field-name">sushi</td><td>Sushi</td><td>🍱</td></tr>
+                        <tr><td class="field-name">vegan</td><td>Vegano</td><td>🥑</td></tr>
+                        <tr><td class="field-name">fitness</td><td>Fitness</td><td>💪</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">4</span>
+                Exemplo completo de uma loja
+            </div>
+            <div class="step-content">
+                <p>Ao criar um documento na colecao <span class="highlight">stores</span>, preencha os campos assim:</p>
+
+                <div class="code-block">{
+  "name": "Supermercado Central",
+  "niche": "supermarket",
+  "email": "mercado@exemplo.com",
+  "ownerId": "uid-do-usuario-firebase",
+  "emoji": "🛒",
+  "bg": "#FFF3ED",
+  "rating": 4.6,
+  "deliveryTime": "30-45 min"
+}</div>
+
+                <div class="warning">
+                    <strong>Importante:</strong> O campo <strong>ownerId</strong> deve ser o UID do usuario que criou a conta de lojista no app. Para obter o UID, o lojista deve fazer login pelo painel de lojista (<span class="highlight">lojista.html</span>) uma vez. Voce encontra o UID no campo "UID do usuario registrado".
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">5</span>
+                Cadastrar produtos dentro da loja
+            </div>
+            <div class="step-content">
+                <ol>
+                    <li>Abra o documento da loja que voce acabou de criar na colecao <span class="highlight">stores</span></li>
+                    <li>Clique no botao <strong>"+"</strong> para adicionar um novo campo</li>
+                    <li>Digite o nome do campo: <span class="highlight">products</span></li>
+                    <li>Selecione o tipo: <strong>array</strong></li>
+                    <li>Clique em <strong>"Adicionar item"</strong> para cada produto</li>
+                </ol>
+
+                <h3 style="color: #F0F6FC; margin: 20px 0 10px; font-size: 1.1rem;">Estrutura de cada produto no array:</h3>
+                <table class="schema-table">
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Tipo</th>
+                            <th>Obrigatorio</th>
+                            <th>Exemplo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="field-name">id</td>
+                            <td class="type">string</td>
+                            <td class="required">Sim</td>
+                            <td>"prod-001"</td>
+                        </tr>
+                        <tr>
+                            <td class="field-name">name</td>
+                            <td class="type">string</td>
+                            <td class="required">Sim</td>
+                            <td>"Arroz Branco"</td>
+                        </tr>
+                        <tr>
+                            <td class="field-name">price</td>
+                            <td class="type">number</td>
+                            <td class="required">Sim</td>
+                            <td>5.49</td>
+                        </tr>
+                        <tr>
+                            <td class="field-name">desc</td>
+                            <td class="type">string</td>
+                            <td class="required">Sim</td>
+                            <td>"Arroz branco tipo 1"</td>
+                        </tr>
+                        <tr>
+                            <td class="field-name">emoji</td>
+                            <td class="type">string</td>
+                            <td class="optional">Nao</td>
+                            <td>"🍚"</td>
+                        </tr>
+                        <tr>
+                            <td class="field-name">popular</td>
+                            <td class="type">boolean</td>
+                            <td class="optional">Nao</td>
+                            <td>true ou false</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="color: #F0F6FC; margin: 20px 0 10px; font-size: 1.1rem;">Exemplo de produto (no Firestore, adicione como map dentro do array):</h3>
+                <div class="code-block">{
+  "id": "arroz-001",
+  "name": "Arroz Branco T1",
+  "price": 5.49,
+  "desc": "Arroz branco tipo 1, 1kg",
+  "emoji": "🍚",
+  "popular": true
+}</div>
+
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">6</span>
+                Verificar no app
+            </div>
+            <div class="step-content">
+                <ol>
+                    <li>Salve tudo no Firestore (clique em <strong>"Salvar"</strong>)</li>
+                    <li>Abra o app no navegador: <a href="https://delivery-geral.netlify.app" class="link-highlight" target="_blank">delivery-geral.netlify.app</a></li>
+                    <li>A loja e os produtos aparecerao automaticamente na home!</li>
+                </ol>
+                <div class="tip">
+                    <strong>Rapido:</strong> O Firestore atualiza em tempo real. Voce nao precisa recarregar a pagina - os dados aparecem sozinhos!
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">7</span>
+                Criar conta de lojista no app
+            </div>
+            <div class="step-content">
+                <ol>
+                    <li>Abra o arquivo <span class="highlight">lojista.html</span> no navegador</li>
+                    <li>Clique em <strong>"Cadastrar loja"</strong> e preencha os dados</li>
+                    <li>O sistema cria automaticamente:
+                        <ul>
+                            <li>Um novo usuario no <strong>Firebase Authentication</strong></li>
+                            <li>Um documento na colecao <strong>stores</strong></li>
+                        </ul>
+                    </li>
+                    <li>O lojista pode usar o email e senha cadastrados para fazer login no painel</li>
+                </ol>
+                <div class="warning">
+                    <strong>Atenção:</strong> O cadastro pelo app cria um <strong>ownerId</strong> automaticamente. O lojista nao precisa saber esse ID - o sistema gerencia tudo.
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">8</span>
+                Criar conta de entregador
+            </div>
+            <div class="step-content">
+                <ol>
+                    <li>Abra o arquivo <span class="highlight">entregador.html</span> no navegador</li>
+                    <li>Preencha os dados e escolha o tipo de veiculo:
+                        <ul>
+                            <li>🏍️ Moto</li>
+                            <li>🚗 Carro</li>
+                            <li>🚚 Caminhão</li>
+                            <li>🚲 Bicicleta</li>
+                        </ul>
+                    </li>
+                    <li>Cadastre e faca login</li>
+                    <li>Os pedidos aparecerao automaticamente quando o admin atribuir a entrega</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="index.html" class="btn btn-primary">Voltar para o App</a>
+            <a href="admin.html" class="btn btn-secondary">Abrir Painel Admin</a>
+        </div>
+
+        <div class="footer">
+            <p>Delivery Geral - Tutorial de Cadastro</p>
+            <p style="margin-top:8px; font-size:0.9rem;">Duvidas? Abra o <strong>admin.html</strong> e acesse a aba Gestao para gerenciar tudo pelo proprio app!</p>
+        </div>
+    </div>
+</body>
+</html>

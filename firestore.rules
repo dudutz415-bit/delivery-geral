@@ -1,0 +1,119 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Funcao auxiliar: usuario esta autenticado
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // Funcao auxiliar: eh o proprio usuario
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    // Funcao auxiliar: verifica role
+    function hasRole(role) {
+      return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    // Funcao auxiliar: admin
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    // === COLECAO: users ===
+    match /users/{userId} {
+      // Qualquer um autenticado pode ler seu proprio perfil
+      // Admin pode ler todos
+      allow read: if isOwner(userId) || isAdmin();
+
+      // Qualquer um pode criar (no cadastro)
+      allow create: if isAuth() && request.auth.uid == userId;
+
+      // Proprio usuario pode atualizar
+      // Admin pode atualizar qualquer
+      allow update: if isOwner(userId) || isAdmin();
+
+      // Apenas admin pode deletar
+      allow delete: if isAdmin();
+
+      // Subcolecao de notificacoes
+      match /notifications/{notifId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // === COLECAO: stores ===
+    match /stores/{storeId} {
+      // Todos podem ler lojas aprovadas
+      // Lojista pode ler sua propria loja
+      // Admin le tudo
+      allow read: if resource.data.approved == true || isOwner(resource.data.ownerId) || isAdmin();
+
+      // Lojista cria sua loja (ownerId = uid)
+      allow create: if isAuth() && request.resource.data.ownerId == request.auth.uid;
+
+      // Lojista atualiza sua loja
+      // Admin atualiza qualquer
+      allow update: if isOwner(resource.data.ownerId) || isAdmin();
+
+      allow delete: if isAdmin();
+
+      // Subcolecao: produtos
+      match /products/{productId} {
+        allow read: if get(/databases/$(database)/documents/stores/$(storeId)).data.approved == true || isAdmin();
+        allow write: if isOwner(get(/databases/$(database)/documents/stores/$(storeId)).data.ownerId) || isAdmin();
+      }
+    }
+
+    // === COLECAO: orders ===
+    match /orders/{orderId} {
+      // Cliente: le proprios pedidos
+      // Lojista: le pedidos da sua loja
+      // Entregador: le pedidos prontos ou aceitos por ele
+      // Admin: le tudo
+      allow read: if isAuth() && (
+        resource.data.clientId == request.auth.uid ||
+        resource.data.storeId == request.auth.uid ||
+        resource.data.driverId == request.auth.uid ||
+        (resource.data.status == 'ready' && hasRole('driver')) ||
+        isAdmin()
+      );
+
+      // Cliente cria pedido
+      allow create: if isAuth() && request.resource.data.clientId == request.auth.uid;
+
+      // Lojista atualiza status (aceita, prepara, pronto)
+      // Entregador atualiza (aceita entrega, entregue)
+      // Cliente atualiza (confirma pagamento)
+      allow update: if isAuth() && (
+        (resource.data.storeId == request.auth.uid && request.resource.data.status in ['accepted','preparing','ready','cancelled']) ||
+        (hasRole('driver') && request.resource.data.status in ['in_transit','delivered'] && request.resource.data.driverId == request.auth.uid) ||
+        (resource.data.clientId == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['payment.paid'])) ||
+        isAdmin()
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // === COLECAO: reviews ===
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuth() && request.resource.data.clientId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // === COLECAO: config ===
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // === COLECAO: earnings ===
+    match /earnings/{driverId}/{doc=**} {
+      allow read: if isOwner(driverId) || isAdmin();
+      allow write: if isAdmin();
+    }
+  }
+}

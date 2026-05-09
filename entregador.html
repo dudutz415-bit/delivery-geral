@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Geral - Painel do Entregador</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <!-- Leaflet CSS (Mapa gratuito OpenStreetMap) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+/* ==========================================
+   DELIVERY GERAL - PAINEL DO ENTREGADOR
+   ========================================== */
+
+:root {
+    --primary: #FF4D00;
+    --primary-dark: #E04400;
+    --primary-light: #FF6B2C;
+    --primary-glow: rgba(255, 77, 0, 0.15);
+    --dark: #0F0F0F;
+    --dark-2: #1A1A1A;
+    --dark-3: #242424;
+    --dark-4: #2E2E2E;
+    --dark-5: #3A3A3A;
+    --text-w: #FFFFFF;
+    --text-w2: rgba(255,255,255,0.7);
+    --text-w3: rgba(255,255,255,0.4);
+    --green: #22C55E;
+    --green-bg: rgba(34,197,94,0.12);
+    --yellow: #FBBF24;
+    --yellow-bg: rgba(251,191,36,0.12);
+    --blue: #3B82F6;
+    --blue-bg: rgba(59,130,246,0.12);
+    --red: #EF4444;
+    --red-bg: rgba(239,68,68,0.12);
+    --radius: 16px;
+    --radius-sm: 12px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.3);
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--dark);
+    color: var(--text-w);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+.app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    background: var(--dark);
+}
+
+/* === PAGES === */
+.page { display: none; padding-bottom: 90px; animation: pageIn 0.3s ease; }
+.page.active { display: block; }
+@keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* === HEADER === */
+.header {
+    padding: 16px 20px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--dark);
+    border-bottom: 1px solid var(--dark-4);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    border: 2px solid var(--dark-4);
+}
+
+.header-info h2 {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.header-info p {
+    font-size: 0.72rem;
+    color: var(--text-w3);
+}
+
+.header-right {
+    display: flex;
+    gap: 8px;
+}
+
+/* Mapa Leaflet */
+#delivery-map {
+    width: 100%;
+    height: 250px;
+    border-radius: var(--radius-sm);
+    margin: 12px 0;
+    z-index: 1;
+}
+
+.map-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: var(--transition);
+}
+
+.map-btn:hover {
+    background: var(--primary-dark);
+}
+
+.h-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: var(--dark-3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-w);
+    transition: var(--transition);
+    position: relative;
+}
+
+.h-btn:hover { background: var(--dark-4); }
+
+.notif-dot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    border: 2px solid var(--dark-3);
+}
+
+/* === STATUS TOGGLE === */
+.status-bar {
+    margin: 12px 20px;
+    background: var(--dark-2);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--dark-4);
+}
+
+.status-text {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-dot.online {
+    background: var(--green);
+    box-shadow: 0 0 8px rgba(34,197,94,0.5);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.status-dot.offline { background: var(--dark-5); }
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 4px rgba(34,197,94,0.3); }
+    50% { box-shadow: 0 0 12px rgba(34,197,94,0.6); }
+}
+
+.status-label {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.status-sub {
+    font-size: 0.72rem;
+    color: var(--text-w3);
+}
+
+.toggle-switch {
+    width: 52px;
+    height: 28px;
+    background: var(--dark-5);
+    border-radius: 14px;
+    position: relative;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.toggle-switch.on { background: var(--green); }
+
+.toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    transition: var(--transition);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.toggle-switch.on::after { left: 27px; }
+
+/* === EARNINGS CARD === */
+.earnings-card {
+    margin: 0 20px 16px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.earnings-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -25%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+}
+
+.earnings-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -15%;
+    width: 130px;
+    height: 130px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+}
+
+.earnings-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+}
+
+.earnings-label {
+    font-size: 0.78rem;
+    opacity: 0.8;
+}
+
+.earnings-value {
+    font-family: 'Sora', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-top: 2px;
+    letter-spacing: -0.02em;
+}
+
+.earnings-period {
+    padding: 5px 12px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+}
+
+.earnings-stats {
+    display: flex;
+    gap: 1px;
+    margin-top: 16px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.e-stat {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    background: rgba(0,0,0,0.1);
+}
+
+.e-stat-val {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 1.15rem;
+}
+
+.e-stat-lbl {
+    font-size: 0.65rem;
+    opacity: 0.7;
+    margin-top: 1px;
+}
+
+/* === QUICK STATS === */
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 0 20px 16px;
+}
+
+.q-stat {
+    background: var(--dark-2);
+    border: 1px solid var(--dark-4);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.q-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.q-text h4 {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.q-text p {
+    font-size: 0.68rem;
+    color: var(--text-w3);
+}
+
+/* === SECTION === */
+.section {
+    margin: 0 20px 20px;
+}
+
+.section-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.section-title .see-all {
+    font-size: 0.78rem;
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: 600;
+    background: none;
+    border: none;
+    font-family: inherit;
+}
+
+/* === ACTIVE DELIVERY === */
+.active-delivery {
+    background: var(--dark-2);
+    border: 2px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.active-delivery::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    animation: deliveryProgress 4s ease-in-out infinite;
+    width: 100%;
+}
+
+@keyframes deliveryProgress {
+    0% { transform: scaleX(0); transform-origin: left; }
+    50% { transform: scaleX(0.7); transform-origin: left; }
+    100% { transform: scaleX(1); transform-origin: left; }
+}
+
+.del-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.del-title {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 0.92rem;
+}
+
+.del-live {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--green);
+}
+
+.del-live::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.del-route {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.del-route-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding-top: 4px;
+}
+
+.route-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.route-dot.pickup { background: var(--blue); }
+.route-dot.dropoff { background: var(--green); }
+
+.route-line {
+    width: 2px;
+    flex: 1;
+    min-height: 24px;
+    background: var(--dark-5);
+    border-radius: 2px;
+}
+
+.del-route-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.route-point h4 {
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.route-point p {
+    font-size: 0.72rem;
+    color: var(--text-w3);
+}
+
+.del-footer {
+    display: flex;
+    gap: 8px;
+}
+
+.del-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Sora', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.del-btn.primary {
+    background: var(--primary);
+    color: white;
+}
+
+.del-btn.primary:hover { background: var(--primary-dark); }
+
+.del-btn.secondary {
+    background: var(--dark-4);
+    color: var(--text-w);
+}
+
+.del-btn.secondary:hover { background: var(--dark-5); }
+
+.del-customer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--dark-4);
+}
+
+.del-cust-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--dark-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.del-cust-info { flex: 1; }
+.del-cust-info h4 { font-size: 0.82rem; font-weight: 600; }
+.del-cust-info p { font-size: 0.7rem; color: var(--text-w3); }
+
+.del-cust-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.cust-action {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--dark-5);
+    background: var(--dark-3);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-w);
+    transition: var(--transition);
+}
+
+.cust-action:hover { border-color: var(--primary); color: var(--primary); }
+
+/* === DELIVERY HISTORY === */
+.history-card {
+    background: var(--dark-2);
+    border: 1px solid var(--dark-4);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: var(--transition);
+}
+
+.history-card:hover { border-color: var(--dark-5); }
+
+.hist-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.hist-info { flex: 1; }
+.hist-info h4 { font-size: 0.85rem; font-weight: 600; }
+.hist-info p { font-size: 0.72rem; color: var(--text-w3); margin-top: 1px; }
+
+.hist-value {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.hist-price {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--green);
+}
+
+.hist-time {
+    font-size: 0.68rem;
+    color: var(--text-w3);
+    margin-top: 1px;
+}
+
+/* === WEEKLY CHART === */
+.chart-container {
+    background: var(--dark-2);
+    border: 1px solid var(--dark-4);
+    border-radius: var(--radius);
+    padding: 16px;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.chart-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.chart-total {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--green);
+}
+
+.chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 120px;
+}
+
+.chart-bar-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.chart-bar {
+    width: 100%;
+    border-radius: 6px 6px 0 0;
+    transition: var(--transition);
+    min-height: 4px;
+    position: relative;
+}
+
+.chart-bar.today {
+    background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+    box-shadow: 0 0 12px rgba(255,77,0,0.3);
+}
+
+.chart-bar:not(.today) {
+    background: var(--dark-4);
+}
+
+.chart-bar:hover { opacity: 0.8; }
+
+.chart-bar-val {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--text-w3);
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.chart-day {
+    font-size: 0.65rem;
+    color: var(--text-w3);
+    font-weight: 500;
+}
+
+.chart-day.today { color: var(--primary); font-weight: 700; }
+
+/* === PERFORMANCE === */
+.perf-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.perf-card {
+    background: var(--dark-2);
+    border: 1px solid var(--dark-4);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    text-align: center;
+}
+
+.perf-value {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    margin-bottom: 2px;
+}
+
+.perf-label {
+    font-size: 0.7rem;
+    color: var(--text-w3);
+}
+
+.perf-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--dark-5);
+    border-radius: 4px;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.perf-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+}
+
+/* === MENU === */
+.menu-group {
+    background: var(--dark-2);
+    border: 1px solid var(--dark-4);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: var(--transition);
+    border-bottom: 1px solid var(--dark-4);
+}
+
+.menu-item:last-child { border-bottom: none; }
+.menu-item:hover { background: var(--dark-3); }
+
+.mi-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.mi-text { flex: 1; }
+.mi-text h4 { font-size: 0.85rem; font-weight: 600; }
+.mi-text p { font-size: 0.7rem; color: var(--text-w3); margin-top: 1px; }
+
+.mi-arrow { color: var(--text-w3); }
+
+/* === BOTTOM NAV === */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    background: var(--dark-2);
+    border-top: 1px solid var(--dark-4);
+    display: flex;
+    padding: 6px 8px 10px;
+    z-index: 100;
+}
+
+.nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-w3);
+    transition: var(--transition);
+    font-family: inherit;
+}
+
+.nav-item.active { color: var(--primary); }
+.nav-item span { font-size: 0.68rem; font-weight: 500; }
+
+/* === PENDING ORDERS === */
+.pending-card {
+    background: var(--dark-2);
+    border: 1px solid var(--dark-4);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 10px;
+    transition: var(--transition);
+}
+
+.pending-card:hover { border-color: var(--primary); }
+
+.pending-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.pending-store {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pending-store span:first-child { font-size: 1.3rem; }
+.pending-store span:last-child { font-weight: 600; font-size: 0.88rem; }
+
+.pending-reward {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    color: var(--green);
+    font-size: 1rem;
+}
+
+.pending-details {
+    display: flex;
+    gap: 16px;
+    font-size: 0.78rem;
+    color: var(--text-w2);
+    margin-bottom: 12px;
+}
+
+.pending-detail {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pending-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.pending-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.pending-btn.accept { background: var(--green); color: white; }
+.pending-btn.accept:hover { background: #16A34A; }
+.pending-btn.reject { background: var(--dark-4); color: var(--text-w2); }
+.pending-btn.reject:hover { background: var(--dark-5); }
+
+/* === TOAST === */
+.toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: white;
+    color: var(--dark);
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    z-index: 999;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* === VEHICLE CATEGORIES === */
+.vcat-card {
+    background: var(--dark-2);
+    border: 2px solid var(--dark-4);
+    border-radius: var(--radius-sm);
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.vcat-card:hover { border-color: var(--dark-5); transform: translateY(-2px); }
+.vcat-card.active { border-color: var(--primary); background: rgba(255,77,0,0.06); }
+
+.vcat-card.active::after {
+    content: '✓';
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    background: var(--primary);
+    border-radius: 50%;
+    font-size: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+}
+
+.vcat-emoji {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.vcat-name {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.vcat-desc {
+    font-size: 0.68rem;
+    color: var(--text-w3);
+    line-height: 1.3;
+}
+
+.vcat-tags {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.vcat-tag {
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+/* === RESPONSIVE === */
+@media (min-width: 481px) {
+    body { background: #080808; }
+    .app { box-shadow: 0 0 60px rgba(255,77,0,0.05); border-left: 1px solid var(--dark-4); border-right: 1px solid var(--dark-4); }
+}
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-left">
+            <div class="header-avatar">🏍️</div>
+            <div class="header-info">
+                <h2 id="driver-name">Entregador</h2>
+                <p id="driver-level">Entregador</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="h-btn" onclick="showTab('home')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="notif-dot"></span>
+            </button>
+            <button class="h-btn" onclick="showTab('perfil')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== HOME PAGE ===== -->
+    <div id="tab-home" class="page active">
+
+        <!-- Status Toggle -->
+        <div class="status-bar">
+            <div class="status-text">
+                <div class="status-dot online" id="status-dot"></div>
+                <div>
+                    <div class="status-label" id="status-label">Online</div>
+                    <div class="status-sub" id="status-sub">Recebendo pedidos</div>
+                </div>
+            </div>
+            <div class="toggle-switch on" id="toggle-online" onclick="toggleOnline()"></div>
+        </div>
+
+        <!-- Earnings -->
+        <div class="earnings-card">
+            <div class="earnings-top">
+                <div>
+                    <div class="earnings-label">Ganhos de hoje</div>
+                    <div class="earnings-value" id="driver-today-earnings">R$ 0,00</div>
+                </div>
+                <div class="earnings-period">Hoje</div>
+            </div>
+            <div class="earnings-stats">
+                <div class="e-stat">
+                    <div class="e-stat-val" id="driver-today-deliveries">0</div>
+                    <div class="e-stat-lbl">Entregas</div>
+                </div>
+                <div class="e-stat">
+                    <div class="e-stat-val" id="driver-rating">0.0</div>
+                    <div class="e-stat-lbl">Avaliacao</div>
+                </div>
+                <div class="e-stat">
+                    <div class="e-stat-val" id="driver-acceptance">0%</div>
+                    <div class="e-stat-lbl">Aceitacao</div>
+                </div>
+                <div class="e-stat">
+                    <div class="e-stat-val" id="driver-hours">0h</div>
+                    <div class="e-stat-lbl">Online</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="q-stat">
+                <div class="q-icon" style="background:var(--green-bg)">💰</div>
+                <div class="q-text">
+                    <h4 id="driver-earnings">R$ 0</h4>
+                    <p>Ganhos da semana</p>
+                </div>
+            </div>
+            <div class="q-stat">
+                <div class="q-icon" style="background:var(--yellow-bg)">⏱️</div>
+                <div class="q-text">
+                    <h4 id="driver-time">0 min</h4>
+                    <p>Tempo medio</p>
+                </div>
+            </div>
+            <div class="q-stat">
+                <div class="q-icon" style="background:var(--blue-bg)">📍</div>
+                <div class="q-text">
+                    <h4 id="driver-distance">0 km</h4>
+                    <p>Percorridos hoje</p>
+                </div>
+            </div>
+            <div class="q-stat">
+                <div class="q-icon" style="background:var(--primary-glow)">🔥</div>
+                <div class="q-text">
+                    <h4>3x</h4>
+                    <p>Bonus ativo</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Delivery -->
+        <div class="section" id="active-delivery-section" style="display:none">
+            <div class="section-title">Entrega em andamento</div>
+            <div class="active-delivery" id="active-delivery-card">
+                <!-- Preenchido dinamicamente pelo Firebase -->
+            </div>
+        </div>
+
+        <!-- No Active Delivery Message -->
+        <div class="section" id="no-delivery-message">
+            <div class="section-title">Entrega em andamento</div>
+            <div style="text-align:center;padding:40px 20px;color:var(--text-w3)">
+                <div style="font-size:3rem;margin-bottom:16px">📭</div>
+                <h3 style="color:var(--text-w2);margin-bottom:8px">Nenhuma entrega ativa</h3>
+                <p>Quando um pedido for atribuido a voce, aparecera aqui!</p>
+            </div>
+        </div>
+
+        <!-- Pending Orders -->
+        <div class="section" id="pending-orders-section">
+            <div class="section-title">
+                Pedidos disponiveis
+                <button class="see-all">Ver mapa</button>
+            </div>
+            <div id="pending-orders-list">
+                <!-- Preenchido dinamicamente pelo Firebase -->
+            </div>
+            <div id="no-pending-orders" style="text-align:center;padding:40px 20px;color:var(--text-w3)">
+                <div style="font-size:3rem;margin-bottom:16px">📭</div>
+                <h3 style="color:var(--text-w2);margin-bottom:8px">Nenhum pedido disponivel</h3>
+                <p>Quando houver pedidos proximos, aparecerao aqui!</p>
+            </div>
+        </div>
+
+        <!-- Weekly Chart -->
+        <div class="section">
+            <div class="section-title">Ganhos da semana</div>
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Ganhos da semana</div>
+                    <div class="chart-total" id="driver-chart-total">R$ 0,00</div>
+                </div>
+                <div class="chart-bars" id="chart-bars"></div>
+            </div>
+        </div>
+
+        <!-- Recent deliveries -->
+        <div class="section">
+            <div class="section-title">
+                Entregas recentes
+                <button class="see-all" onclick="showTab('historico')">Ver todas</button>
+            </div>
+
+            <div id="recent-deliveries-list">
+                <!-- Preenchido dinamicamente pelo Firebase -->
+            </div>
+            <div id="no-recent-deliveries" style="text-align:center;padding:40px 20px;color:var(--text-w3)">
+                <div style="font-size:3rem;margin-bottom:16px">📭</div>
+                <h3 style="color:var(--text-w2);margin-bottom:8px">Nenhuma entrega ainda</h3>
+                <p>Suas entregas realizadas aparecerao aqui!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== EARNINGS PAGE ===== -->
+    <div id="tab-ganhos" class="page">
+        <div class="section" style="padding-top:16px">
+            <div class="section-title">Desempenho</div>
+            <div class="perf-grid">
+                <div class="perf-card">
+                    <div class="perf-value" style="color:var(--green)" id="driver-perf-rating">--</div>
+                    <div class="perf-label">Avaliacao media</div>
+                    <div class="perf-bar"><div class="perf-fill" id="driver-perf-rating-bar" style="width:0%;background:var(--green)"></div></div>
+                </div>
+                <div class="perf-card">
+                    <div class="perf-value" style="color:var(--primary)" id="driver-perf-accept">--</div>
+                    <div class="perf-label">Taxa de aceitacao</div>
+                    <div class="perf-bar"><div class="perf-fill" id="driver-perf-accept-bar" style="width:0%;background:var(--primary)"></div></div>
+                </div>
+                <div class="perf-card">
+                    <div class="perf-value" style="color:var(--blue)" id="driver-perf-time">--</div>
+                    <div class="perf-label">Tempo medio</div>
+                    <div class="perf-bar"><div class="perf-fill" id="driver-perf-time-bar" style="width:0%;background:var(--blue)"></div></div>
+                </div>
+                <div class="perf-card">
+                    <div class="perf-value" style="color:var(--yellow)" id="driver-perf-deliveries">0</div>
+                    <div class="perf-label">Entregas no mes</div>
+                    <div class="perf-bar"><div class="perf-fill" id="driver-perf-deliveries-bar" style="width:0%;background:var(--yellow)"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Resumo financeiro</div>
+            <div class="menu-group">
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--green-bg)">💰</div>
+                    <div class="mi-text"><h4>Ganhos do mes</h4><p>Maio 2026</p></div>
+                    <span style="font-family:'Sora';font-weight:800;color:var(--green)" id="driver-month-earnings">R$ 0</span>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--yellow-bg)">🎁</div>
+                    <div class="mi-text"><h4>Bonus e gorjetas</h4><p>Extras recebidos</p></div>
+                    <span style="font-family:'Sora';font-weight:800;color:var(--yellow)" id="driver-bonus">R$ 0</span>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--blue-bg)">📊</div>
+                    <div class="mi-text"><h4>Media por entrega</h4><p>Baseado em entregas realizadas</p></div>
+                    <span style="font-family:'Sora';font-weight:800;color:var(--blue)" id="driver-avg">R$ 0</span>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--primary-glow)">🏦</div>
+                    <div class="mi-text"><h4>Proximo saque</h4><p>Disponivel em 2 dias</p></div>
+                    <span style="font-family:'Sora';font-weight:800;color:var(--primary)" id="driver-balance">R$ 0,00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Metas do mes</div>
+            <div class="menu-group">
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--green-bg)">🎯</div>
+                    <div class="mi-text"><h4>150 entregas = Bonus R$ 200</h4><p id="driver-deliveries">0/150 (0%)</p></div>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--yellow-bg)">⭐</div>
+                    <div class="mi-text"><h4>Manter avaliacao 4.8+</h4><p id="driver-rating">Atual: --</p></div>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--blue-bg)">🔥</div>
+                    <div class="mi-text"><h4>30 dias seguidos online</h4><p id="driver-streak">0/30 dias</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== HISTORY PAGE ===== -->
+    <div id="tab-historico" class="page">
+        <div class="section" style="padding-top:16px">
+            <div class="section-title">Historico completo</div>
+            <div id="full-history"></div>
+        </div>
+    </div>
+
+    <!-- ===== PROFILE PAGE ===== -->
+    <div id="tab-perfil" class="page">
+        <div class="section" style="padding-top:16px">
+            <div style="text-align:center;margin-bottom:20px">
+                <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 12px;border:3px solid var(--dark-4)">🏍️</div>
+                <h2 style="font-family:'Sora';font-size:1.25rem;font-weight:800" id="driver-profile-name">Entregador</h2>
+                <p style="color:var(--text-w3);font-size:0.85rem">Entregador desde <span id="driver-since">-</span></p>
+                <div style="display:inline-flex;align-items:center;gap:6px;background:var(--yellow-bg);padding:5px 14px;border-radius:20px;margin-top:8px;font-size:0.75rem;font-weight:700;color:var(--yellow)">⭐ Nivel <span id="driver-level">-</span> • <span id="driver-points">0</span> pontos</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Dados pessoais</div>
+            <div class="menu-group">
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--dark-4)">👤</div>
+                    <div class="mi-text"><h4 id="driver-fullname">-</h4><p>Nome completo</p></div>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--dark-4)">📱</div>
+                    <div class="mi-text"><h4 id="driver-phone">-</h4><p>Telefone</p></div>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--dark-4)">✉️</div>
+                    <div class="mi-text"><h4 id="driver-email">-</h4><p>E-mail</p></div>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--dark-4)">🪪</div>
+                    <div class="mi-text"><h4 id="driver-cpf">-</h4><p>Documento</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Categoria de Veiculo</div>
+            <div id="vehicle-categories" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Meu Veiculo Atual</div>
+            <div class="menu-group">
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--primary-glow)">🏍️</div>
+                    <div class="mi-text"><h4 id="driver-vehicle">-</h4><p id="driver-plate">-</p></div>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--green-bg)">📄</div>
+                    <div class="mi-text"><h4 id="driver-cnh">-</h4><p id="driver-cnh-valid">-</p></div>
+                </div>
+                <div class="menu-item" onclick="showToast('Trocar veiculo')">
+                    <div class="mi-icon" style="background:var(--blue-bg)">🔄</div>
+                    <div class="mi-text"><h4>Trocar veiculo</h4><p>Alterar categoria ou dados</p></div>
+                    <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Conta bancaria</div>
+            <div class="menu-group">
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--blue-bg)">🏦</div>
+                    <div class="mi-text"><h4 id="driver-bank">-</h4><p>Conta para recebimento</p></div>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-icon" style="background:var(--green-bg)">📱</div>
+                    <div class="mi-text"><h4 id="driver-pix">-</h4><p>Chave ativa</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Configuracoes</div>
+            <div class="menu-group">
+                <div class="menu-item" onclick="showToast('Preferencias de rota')">
+                    <div class="mi-icon" style="background:var(--dark-4)">🗺️</div>
+                    <div class="mi-text"><h4>Preferencias de rota</h4><p>Raio maximo, areas preferidas</p></div>
+                    <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+                </div>
+                <div class="menu-item" onclick="showToast('Notificacoes')">
+                    <div class="mi-icon" style="background:var(--dark-4)">🔔</div>
+                    <div class="mi-text"><h4>Notificacoes</h4><p>Sons, alertas, vibrar</p></div>
+                    <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+                </div>
+                <div class="menu-item" onclick="showToast('Suporte')">
+                    <div class="mi-icon" style="background:var(--dark-4)">❓</div>
+                    <div class="mi-text"><h4>Ajuda e Suporte</h4><p>FAQ, chat com suporte</p></div>
+                    <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+                </div>
+                <div class="menu-item" onclick="showToast('Documentos')">
+                    <div class="mi-icon" style="background:var(--dark-4)">📋</div>
+                    <div class="mi-text"><h4>Meus documentos</h4><p>CNH, CRLV, comprovantes</p></div>
+                    <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <button style="width:100%;padding:14px;background:none;border:1px solid var(--red-bg);border-radius:12px;color:var(--red);font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px" onclick="showToast('Voce saiu da conta')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Sair da conta
+            </button>
+            <p style="text-align:center;font-size:0.7rem;color:var(--text-w3);margin-top:12px;padding-bottom:16px">Delivery Geral Entregador v1.0</p>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-tab="home" onclick="showTab('home')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            <span>Inicio</span>
+        </button>
+        <button class="nav-item" data-tab="ganhos" onclick="showTab('ganhos')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span>Ganhos</span>
+        </button>
+        <button class="nav-item" data-tab="historico" onclick="showTab('historico')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+            <span>Historico</span>
+        </button>
+        <button class="nav-item" data-tab="perfil" onclick="showTab('perfil')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Perfil</span>
+        </button>
+    </nav>
+</div>
+
+<script>
+// === NAVIGATION ===
+function showTab(tab) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.tab === tab));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// === ONLINE TOGGLE ===
+let isOnline = true;
+function toggleOnline() {
+    isOnline = !isOnline;
+    const dot = document.getElementById('status-dot');
+    const label = document.getElementById('status-label');
+    const sub = document.getElementById('status-sub');
+    const toggle = document.getElementById('toggle-online');
+
+    dot.className = 'status-dot ' + (isOnline ? 'online' : 'offline');
+    label.textContent = isOnline ? 'Online' : 'Offline';
+    sub.textContent = isOnline ? 'Recebendo pedidos' : 'Voce esta invisivel';
+    toggle.className = 'toggle-switch ' + (isOnline ? 'on' : '');
+    showToast(isOnline ? 'Voce esta online!' : 'Voce esta offline');
+}
+
+// === CHART ===
+const weekData = [];
+
+function renderChart() {
+    const container = document.getElementById('chart-bars');
+    if (!container) return;
+    
+    if (weekData.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center;padding:40px 20px;color:var(--text-w3);width:100%">
+                <div style="font-size:2rem;margin-bottom:8px">📊</div>
+                <p>Sem dados de ganhos ainda</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const max = Math.max(...weekData.map(d => d.val));
+    container.innerHTML = weekData.map(d => {
+        const h = Math.max(8, (d.val / max) * 100);
+        return `
+            <div class="chart-bar-wrap">
+                <div class="chart-bar ${d.today ? 'today' : ''}" style="height:${h}%">
+                    <span class="chart-bar-val">R$${d.val}</span>
+                </div>
+                <span class="chart-day ${d.today ? 'today' : ''}">${d.day}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+// === HISTORY ===
+const historyData = [];
+
+function renderHistory() {
+    const container = document.getElementById('full-history');
+    if (!container) return;
+    
+    if (historyData.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center;padding:40px 20px;color:var(--text-w3)">
+                <div style="font-size:3rem;margin-bottom:16px">📭</div>
+                <h3 style="color:var(--text-w2);margin-bottom:8px">Nenhuma entrega ainda</h3>
+                <p>Suas entregas realizadas aparecerao aqui!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = historyData.map(h => `
+        <div class="history-card">
+            <div class="hist-icon" style="background:${h.bg}">${h.emoji}</div>
+            <div class="hist-info">
+                <h4>${h.store}</h4>
+                <p>${h.addr} • ${h.items} ${h.items === 1 ? 'item' : 'itens'}</p>
+            </div>
+            <div class="hist-value">
+                <div class="hist-price">+R$ ${h.price.toFixed(2).replace('.', ',')}</div>
+                <div class="hist-time">${h.time}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// === TOAST ===
+function showToast(msg) {
+    document.querySelectorAll('.toast').forEach(t => t.remove());
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2000);
+}
+
+// === INIT ===
+renderChart();
+renderHistory();
+renderVehicleCategories();
+
+// === VEHICLE CATEGORIES ===
+let selectedVehicle = 'moto';
+
+const vehicleCategories = [
+    { id: 'bicicleta', emoji: '🚲', name: 'Bicicleta', desc: 'Entregas leves e curtas', tags: [
+        { label: 'Ate 5 km', bg: 'var(--green-bg)', color: 'var(--green)' },
+        { label: 'Eco', bg: 'var(--blue-bg)', color: 'var(--blue)' },
+    ]},
+    { id: 'moto', emoji: '🏍️', name: 'Moto', desc: 'Agilidade no transito urbano', tags: [
+        { label: 'Ate 15 km', bg: 'var(--primary-glow)', color: 'var(--primary)' },
+        { label: 'Rapido', bg: 'var(--yellow-bg)', color: 'var(--yellow)' },
+    ]},
+    { id: 'carro', emoji: '🚗', name: 'Carro', desc: 'Pedidos grandes e frageis', tags: [
+        { label: 'Ate 30 km', bg: 'var(--blue-bg)', color: 'var(--blue)' },
+        { label: 'Conforto', bg: 'var(--green-bg)', color: 'var(--green)' },
+    ]},
+    { id: 'van', emoji: '🚐', name: 'Van / Utilitario', desc: 'Cargas medias e volumosas', tags: [
+        { label: 'Ate 50 km', bg: 'var(--yellow-bg)', color: 'var(--yellow)' },
+        { label: 'Volume', bg: 'var(--primary-glow)', color: 'var(--primary)' },
+    ]},
+    { id: 'caminhao', emoji: '🚛', name: 'Caminhao', desc: 'Mudancas e cargas pesadas', tags: [
+        { label: 'Sem limite', bg: 'var(--red-bg)', color: 'var(--red)' },
+        { label: 'Pesado', bg: 'var(--yellow-bg)', color: 'var(--yellow)' },
+    ]},
+    { id: 'patinete', emoji: '🛴', name: 'Patinete', desc: 'Entregas ultra rapidas', tags: [
+        { label: 'Ate 3 km', bg: 'var(--green-bg)', color: 'var(--green)' },
+        { label: 'Leve', bg: 'var(--blue-bg)', color: 'var(--blue)' },
+    ]},
+];
+
+function renderVehicleCategories() {
+    const container = document.getElementById('vehicle-categories');
+    container.innerHTML = vehicleCategories.map(v => `
+        <div class="vcat-card ${v.id === selectedVehicle ? 'active' : ''}" onclick="selectVehicle('${v.id}')">
+            <span class="vcat-emoji">${v.emoji}</span>
+            <div class="vcat-name">${v.name}</div>
+            <div class="vcat-desc">${v.desc}</div>
+            <div class="vcat-tags">
+                ${v.tags.map(t => `<span class="vcat-tag" style="background:${t.bg};color:${t.color}">${t.label}</span>`).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+function selectVehicle(id) {
+    selectedVehicle = id;
+    renderVehicleCategories();
+    const v = vehicleCategories.find(c => c.id === id);
+    showToast(v.emoji + ' ' + v.name + ' selecionado!');
+}
+
+// ===== MAPA DE ENTREGA =====
+let deliveryMap = null;
+let pickupMarker = null;
+let dropoffMarker = null;
+
+function initDeliveryMap(pickupLat, pickupLng, dropoffLat, dropoffLng, storeName, storeAddress, customerName, customerAddress) {
+    // Se nao tiver coordenadas, nao inicializa
+    if (!pickupLat || !pickupLng || !dropoffLat || !dropoffLng) {
+        const mapContainer = document.getElementById('delivery-map');
+        if (mapContainer) {
+            mapContainer.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text-w3)"><div style="font-size:2rem;margin-bottom:8px">🗺️</div><p>Mapa indisponivel sem coordenadas</p></div>';
+        }
+        return;
+    }
+    
+    // Inicializa o mapa
+    deliveryMap = L.map('delivery-map').setView([pickupLat, pickupLng], 14);
+    
+    // Adiciona camada do OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(deliveryMap);
+    
+    // Marcador de retirada (loja)
+    const pickupIcon = L.divIcon({
+        className: 'custom-marker',
+        html: '<div style="background:#FF4D00;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);">🛒</div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+    });
+    
+    // Marcador de entrega (cliente)
+    const dropoffIcon = L.divIcon({
+        className: 'custom-marker',
+        html: '<div style="background:#22C55E;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);">🏠</div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+    });
+    
+    pickupMarker = L.marker([pickupLat, pickupLng], { icon: pickupIcon }).addTo(deliveryMap);
+    pickupMarker.bindPopup('<b>' + (storeName || 'Loja') + '</b><br>' + (storeAddress || '') + '<br><span style="color:#FF4D00">📍 Ponto de retirada</span>');
+    
+    dropoffMarker = L.marker([dropoffLat, dropoffLng], { icon: dropoffIcon }).addTo(deliveryMap);
+    dropoffMarker.bindPopup('<b>' + (customerName || 'Cliente') + '</b><br>' + (customerAddress || '') + '<br><span style="color:#22C55E">🏠 Destino</span>');
+    
+    // Desenha linha da rota
+    const routeLine = L.polyline(
+        [[pickupLat, pickupLng], [dropoffLat, dropoffLng]],
+        { color: '#FF4D00', weight: 4, opacity: 0.8, dashArray: '10, 10' }
+    ).addTo(deliveryMap);
+    
+    // Ajusta o zoom para mostrar ambos os pontos
+    deliveryMap.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
+}
+
+function openExternalMap() {
+    // Abre Google Maps com direcoes (usa coordenadas reais se disponiveis)
+    const pickup = pickupMarker ? pickupMarker.getLatLng().lat + ',' + pickupMarker.getLatLng().lng : '';
+    const dropoff = dropoffMarker ? dropoffMarker.getLatLng().lat + ',' + dropoffMarker.getLatLng().lng : '';
+    if (!pickup || !dropoff) {
+        showToast('Coordenadas nao disponiveis');
+        return;
+    }
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${pickup}&destination=${dropoff}&travelmode=driving`;
+    window.open(url, '_blank');
+}
+
+// Inicializa o mapa quando a pagina carregar (sem dados ficticios)
+document.addEventListener('DOMContentLoaded', function() {
+    // Mapa sera inicializado apenas quando houver uma entrega ativa com coordenadas reais
+});
+
+// ===== FIREBASE AUTH GUARD =====
+const firebaseConfigEntregador = {
+  apiKey: "AIzaSyBPdbt1b-tQaYtQgZKLKRaiZhp80bkuI8I",
+  authDomain: "delivery-geral-af64e.firebaseapp.com",
+  projectId: "delivery-geral-af64e",
+  storageBucket: "delivery-geral-af64e.firebasestorage.app",
+  messagingSenderId: "414484131141",
+  appId: "1:414484131141:web:67d058d157e6b7fc0f622c",
+  measurementId: "G-WHS4WZJXFH"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfigEntregador);
+const dbE = firebase.firestore();
+const authE = firebase.auth();
+
+authE.onAuthStateChanged(async (user) => {
+    if (!user) {
+        window.location.href = 'index.html';
+        return;
+    }
+    const doc = await dbE.collection('users').doc(user.uid).get();
+    const profile = doc.exists ? doc.data() : {};
+    if (profile.role !== 'driver' && profile.role !== 'admin') {
+        showToast('Acesso negado. Redirecionando...');
+        setTimeout(() => window.location.href = 'index.html', 1500);
+        return;
+    }
+    
+    // Carrega estatisticas do entregador
+    loadDriverStats(user.uid);
+});
+
+function loadDriverStats(driverId) {
+    // Busca dados do entregador
+    dbE.collection('users').doc(driverId).onSnapshot((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            const nameEl = document.getElementById('driver-name');
+            if (nameEl) nameEl.textContent = data.name || 'Entregador';
+            const profileNameEl = document.getElementById('driver-profile-name');
+            if (profileNameEl) profileNameEl.textContent = data.name || 'Entregador';
+            const headerNameEl = document.getElementById('driver-header-name');
+            if (headerNameEl) headerNameEl.textContent = data.name || 'Entregador';
+            const sinceEl = document.getElementById('driver-since');
+            if (sinceEl) sinceEl.textContent = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleDateString('pt-BR',{month:'short',year:'numeric'}) : '-';
+            const levelEl = document.getElementById('driver-level');
+            if (levelEl) levelEl.textContent = data.level || 'Bronze';
+            const pointsEl = document.getElementById('driver-points');
+            if (pointsEl) pointsEl.textContent = data.points || 0;
+            const fullnameEl = document.getElementById('driver-fullname');
+            if (fullnameEl) fullnameEl.textContent = data.fullName || data.name || '-';
+            const phoneEl = document.getElementById('driver-phone');
+            if (phoneEl) phoneEl.textContent = data.phone || '-';
+            const emailEl = document.getElementById('driver-email');
+            if (emailEl) emailEl.textContent = data.email || '-';
+            const cpfEl = document.getElementById('driver-cpf');
+            if (cpfEl) cpfEl.textContent = data.cpf ? 'CPF ' + data.cpf : '-';
+            const bankEl = document.getElementById('driver-bank');
+            if (bankEl) bankEl.textContent = data.bank ? data.bank + ' • Ag ' + (data.agency||'-') + ' • CC ' + (data.account||'-') : '-';
+            const pixEl = document.getElementById('driver-pix');
+            if (pixEl) pixEl.textContent = data.pixKey ? 'PIX: ' + data.pixKey : '-';
+            const vehicleEl = document.getElementById('driver-vehicle');
+            if (vehicleEl) vehicleEl.textContent = data.vehicle ? data.vehicle + (data.vehicleColor ? ' - ' + data.vehicleColor : '') : '-';
+            const plateEl = document.getElementById('driver-plate');
+            if (plateEl) plateEl.textContent = data.plate ? 'Placa: ' + data.plate : '-';
+            const cnhEl = document.getElementById('driver-cnh');
+            if (cnhEl) cnhEl.textContent = data.cnh ? 'CNH ' + data.cnh : '-';
+            const cnhValidEl = document.getElementById('driver-cnh-valid');
+            if (cnhValidEl) cnhValidEl.textContent = data.cnhValid ? 'Valida ate ' + data.cnhValid : '-';
+        }
+    });
+    
+    // Busca pedidos entregues pelo entregador
+    dbE.collection('orders').where('driverId', '==', driverId).where('status', '==', 'delivered')
+        .onSnapshot((snap) => {
+            const orders = snap.docs.map(d => d.data());
+            
+            // Ganhos totais
+            const totalEarnings = orders.reduce((sum, o) => sum + (o.deliveryFee || 0), 0);
+            
+            // Pedidos de hoje
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const todayOrders = orders.filter(o => o.deliveredAt && o.deliveredAt.toDate() >= today);
+            const todayEarnings = todayOrders.reduce((sum, o) => sum + (o.deliveryFee || 0), 0);
+            
+            // Pedidos da semana
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            const weekOrders = orders.filter(o => o.deliveredAt && o.deliveredAt.toDate() >= weekAgo);
+            const weekEarnings = weekOrders.reduce((sum, o) => sum + (o.deliveryFee || 0), 0);
+            
+            // Pedidos do mes
+            const monthAgo = new Date();
+            monthAgo.setDate(1);
+            monthAgo.setHours(0,0,0,0);
+            const monthOrders = orders.filter(o => o.deliveredAt && o.deliveredAt.toDate() >= monthAgo);
+            const monthEarnings = monthOrders.reduce((sum, o) => sum + (o.deliveryFee || 0), 0);
+            
+            // Atualiza DOM - Ganhos de hoje
+            const todayEarningsEl = document.getElementById('driver-today-earnings');
+            if (todayEarningsEl) todayEarningsEl.textContent = 'R$ ' + todayEarnings.toFixed(2).replace('.', ',');
+            
+            // Entregas de hoje
+            const todayDelEl = document.getElementById('driver-today-deliveries');
+            if (todayDelEl) todayDelEl.textContent = todayOrders.length;
+            
+            // Ganhos da semana
+            const earningsEl = document.getElementById('driver-earnings');
+            if (earningsEl) earningsEl.textContent = 'R$ ' + weekEarnings.toFixed(0);
+            
+            // Chart total
+            const chartTotal = document.getElementById('driver-chart-total');
+            if (chartTotal) chartTotal.textContent = 'R$ ' + weekEarnings.toFixed(2).replace('.', ',');
+            
+            // Ganhos do mes
+            const monthEl = document.getElementById('driver-month-earnings');
+            if (monthEl) monthEl.textContent = 'R$ ' + monthEarnings.toFixed(0);
+            
+            // Media por entrega
+            const avgEl = document.getElementById('driver-avg');
+            if (avgEl) {
+                const avg = orders.length > 0 ? totalEarnings / orders.length : 0;
+                avgEl.textContent = 'R$ ' + avg.toFixed(2).replace('.', ',');
+            }
+            
+            // Bonus e gorjetas
+            const bonusEl = document.getElementById('driver-bonus');
+            if (bonusEl) {
+                const totalTips = orders.reduce((sum, o) => sum + (o.tip || 0), 0);
+                bonusEl.textContent = 'R$ ' + totalTips.toFixed(0);
+            }
+
+            // Proximo saque / saldo
+            const balanceEl = document.getElementById('driver-balance');
+            if (balanceEl) {
+                balanceEl.textContent = 'R$ ' + weekEarnings.toFixed(2).replace('.', ',');
+            }
+            const distEl = document.getElementById('driver-distance');
+            if (distEl) {
+                distEl.textContent = (todayOrders.length * 2) + ' km';
+            }
+            
+            // Tempo medio (estimativa: 20 min por entrega)
+            const timeEl = document.getElementById('driver-time');
+            if (timeEl) {
+                const avgTime = todayOrders.length > 0 ? '20' : '0';
+                timeEl.textContent = avgTime + ' min';
+            }
+            
+            // Avaliacao media
+            const ratings = orders.map(o => o.rating || 0).filter(r => r > 0);
+            const avgRating = ratings.length > 0 ? (ratings.reduce((a,b) => a+b, 0) / ratings.length) : 0;
+            const ratingEl = document.getElementById('driver-rating');
+            if (ratingEl) ratingEl.textContent = 'Atual: ' + avgRating.toFixed(1);
+            const perfRatingEl = document.getElementById('driver-perf-rating');
+            if (perfRatingEl) perfRatingEl.textContent = avgRating.toFixed(1);
+            const perfRatingBar = document.getElementById('driver-perf-rating-bar');
+            if (perfRatingBar) perfRatingBar.style.width = Math.min(100, (avgRating/5)*100) + '%';
+
+            // Taxa de aceitacao (simulada baseada em entregas)
+            const acceptanceEl = document.getElementById('driver-acceptance');
+            let acceptance = 0;
+            if (acceptanceEl) {
+                acceptance = orders.length > 0 ? Math.min(95, 70 + orders.length) : 0;
+                acceptanceEl.textContent = acceptance + '%';
+            }
+            const perfAcceptEl = document.getElementById('driver-perf-accept');
+            if (perfAcceptEl) perfAcceptEl.textContent = acceptance + '%';
+            const perfAcceptBar = document.getElementById('driver-perf-accept-bar');
+            if (perfAcceptBar) perfAcceptBar.style.width = Math.min(100, acceptance) + '%';
+
+            // Tempo medio
+            const perfTimeEl = document.getElementById('driver-perf-time');
+            if (perfTimeEl) perfTimeEl.textContent = '20 min';
+            const perfTimeBar = document.getElementById('driver-perf-time-bar');
+            if (perfTimeBar) perfTimeBar.style.width = '70%';
+
+            // Entregas no mes
+            const perfDelEl = document.getElementById('driver-perf-deliveries');
+            if (perfDelEl) perfDelEl.textContent = monthOrders.length;
+            const perfDelBar = document.getElementById('driver-perf-deliveries-bar');
+            if (perfDelBar) perfDelBar.style.width = Math.min(100, (monthOrders.length/150)*100) + '%';
+
+            // Metas
+            const delEl = document.getElementById('driver-deliveries');
+            if (delEl) delEl.textContent = monthOrders.length + '/150 (' + Math.min(100, Math.round((monthOrders.length/150)*100)) + '%)';
+            const streakEl = document.getElementById('driver-streak');
+            if (streakEl) streakEl.textContent = Math.min(30, monthOrders.length) + '/30 dias';
+        });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Geral - Tudo entregue na sua porta</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FF4D00">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Delivery Geral">
+    <link rel="apple-touch-icon" href="icon-192.svg">
+    <link rel="icon" type="image/svg+xml" href="icon-192.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDK (compat - funciona sem build tools) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-messaging-compat.js"></script>
+</head>
+<body>
+
+<!-- ====== AUTH SCREEN (Login / Cadastro) ====== -->
+<div id="auth-screen" class="auth-screen">
+    <div class="auth-container">
+        <div class="auth-logo">
+            <svg viewBox="0 0 80 80" fill="none" width="64" height="64">
+                <rect width="80" height="80" rx="20" fill="#FF4D00"/>
+                <path d="M20 55V30l20-12 20 12v25L40 67 20 55z" fill="#fff" opacity="0.9"/>
+                <path d="M40 18L20 30v25l20 12 20-12V30L40 18zm0 5l15 9v19l-15 9-15-9V32l15-9z" fill="#fff"/>
+                <circle cx="40" cy="42" r="6" fill="#FF4D00"/>
+            </svg>
+            <h1>Delivery <strong>Geral</strong></h1>
+            <p>Tudo entregue na sua porta</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchAuthTab('login')" id="tab-login">Entrar</button>
+            <button class="auth-tab" onclick="switchAuthTab('register')" id="tab-register">Criar conta</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="auth-login" class="auth-form">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="login-email" placeholder="seu@email.com">
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" id="login-password" placeholder="Sua senha">
+            </div>
+            <button class="btn-primary" onclick="handleLogin()" style="width:100%;margin-top:8px">Entrar</button>
+            <p class="auth-error" id="login-error"></p>
+        </div>
+
+        <!-- Register Form -->
+        <div id="auth-register" class="auth-form hidden">
+            <div class="form-group">
+                <label>Nome completo</label>
+                <input type="text" id="reg-name" placeholder="Seu nome">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="reg-email" placeholder="seu@email.com">
+            </div>
+            <div class="form-group">
+                <label>Telefone</label>
+                <input type="tel" id="reg-phone" placeholder="(11) 99999-9999">
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" id="reg-password" placeholder="Minimo 6 caracteres">
+            </div>
+            <div class="form-group">
+                <label>Cidade</label>
+                <input type="text" id="reg-city" placeholder="Sua cidade">
+            </div>
+            <button class="btn-primary" onclick="handleRegister()" style="width:100%;margin-top:8px">Criar conta</button>
+            <p class="auth-error" id="register-error"></p>
+        </div>
+
+        <p class="auth-hint">Ao entrar, voce concorda com nossos <a href="termos.html" target="_blank">Termos</a> e <a href="privacidade.html" target="_blank">Privacidade</a>.</p>
+    </div>
+</div>
+
+<!-- ====== SPLASH SCREEN ====== -->
+<div id="splash" class="splash">
+    <div class="splash-content">
+        <div class="splash-icon">
+            <svg viewBox="0 0 80 80" fill="none">
+                <rect width="80" height="80" rx="20" fill="#FF4D00"/>
+                <path d="M20 55V30l20-12 20 12v25L40 67 20 55z" fill="#fff" opacity="0.9"/>
+                <path d="M40 18L20 30v25l20 12 20-12V30L40 18zm0 5l15 9v19l-15 9-15-9V32l15-9z" fill="#fff"/>
+                <circle cx="40" cy="42" r="6" fill="#FF4D00"/>
+            </svg>
+        </div>
+        <h1 class="splash-title">Delivery Geral</h1>
+        <p class="splash-sub">Carregando seu mundo de compras...</p>
+        <div class="splash-loader"><div></div></div>
+    </div>
+</div>
+
+<!-- ====== APP SHELL ====== -->
+<div id="app" class="app hidden">
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-top">
+            <div class="logo" onclick="navigateTo('home')">
+                <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
+                    <rect width="40" height="40" rx="10" fill="#FF4D00"/>
+                    <path d="M10 28V15l10-6 10 6v13l-10 6-10-6z" fill="#fff" opacity="0.9"/>
+                    <circle cx="20" cy="21" r="3" fill="#FF4D00"/>
+                </svg>
+                <span>Delivery <strong>Geral</strong></span>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="navigateTo('search')" aria-label="Buscar">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </button>
+                <button class="btn-icon cart-btn" onclick="navigateTo('cart')" aria-label="Carrinho">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    <span id="cart-badge" class="cart-badge hidden">0</span>
+                </button>
+                <button class="btn-icon profile-btn" onclick="navigateTo('perfil')" aria-label="Meu Perfil">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </button>
+            </div>
+        </div>
+        <div id="location-bar" class="location-bar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#FF4D00" stroke="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <span>Entregar em: <strong id="user-address">Sua localização</strong></span>
+            <button class="change-addr" onclick="changeAddress()">Alterar</button>
+        </div>
+    </header>
+
+    <!-- ====== PAGES ====== -->
+
+    <!-- HOME PAGE -->
+    <main id="page-home" class="page active">
+        <!-- Hero Banner -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Tudo que você precisa,<br><span class="highlight">entregue na sua porta</span></h1>
+                <p>Supermercados, farmácias, restaurantes, pet shops e muito mais. Compre de qualquer lugar do mundo sem sair de casa.</p>
+                <div class="hero-search" onclick="navigateTo('search')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <span>O que você precisa hoje?</span>
+                </div>
+            </div>
+            <div class="hero-badges">
+                <div class="badge"><span>30 min</span> Entrega rapida</div>
+                <div class="badge"><span>0%</span> Taxa gratis</div>
+                <div class="badge"><span>24h</span> Sempre aberto</div>
+            </div>
+        </section>
+
+        <!-- Categories Grid -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Categorias de Mercado</h2>
+                <button class="see-all" onclick="navigateTo('categories')">Ver todos</button>
+            </div>
+            <div class="categories-scroll" id="categories-grid"></div>
+        </section>
+
+        <!-- Promos -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Ofertas do Dia</h2>
+            </div>
+            <div class="promos-scroll" id="promos-list"></div>
+        </section>
+
+        <!-- BOTAO PROMOCOES LOCAL -->
+        <section class="section">
+            <div class="promo-banner-local" onclick="navigateTo('promocoes')">
+                <div class="promo-banner-bg"></div>
+                <div class="promo-banner-content">
+                    <div class="promo-banner-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                    </div>
+                    <div class="promo-banner-text">
+                        <h3>Promocoes da sua cidade</h3>
+                        <p>Os menores precos dos mercados perto de voce</p>
+                    </div>
+                    <div class="promo-banner-arrow">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+                    </div>
+                </div>
+                <div class="promo-banner-tag">ATE 70% OFF</div>
+            </div>
+        </section>
+
+        <!-- Popular Stores -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Lojas Populares</h2>
+                <button class="see-all" onclick="navigateTo('categories')">Ver todas</button>
+            </div>
+            <div class="stores-grid" id="stores-list"></div>
+        </section>
+
+        <!-- How it works -->
+        <section class="section how-it-works">
+            <h2>Como funciona</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <h3>Escolha a categoria</h3>
+                    <p>Supermercado, farmacia, restaurante, pet shop e dezenas de opcoes</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <h3>Monte seu pedido</h3>
+                    <p>Adicione os produtos que deseja no carrinho</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <h3>Receba em casa</h3>
+                    <p>Acompanhe em tempo real e receba no conforto do seu lar</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Link Entregador -->
+        <section class="section" style="padding-bottom:0">
+            <a href="entregador.html" target="_blank" style="display:flex;align-items:center;gap:14px;background:#1A1A1A;border-radius:16px;padding:18px 20px;color:white;text-decoration:none;transition:all 0.25s ease">
+                <div style="width:48px;height:48px;background:linear-gradient(135deg,#FF4D00,#FF6B2C);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0">🏍️</div>
+                <div style="flex:1">
+                    <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.95rem">Seja um Entregador</div>
+                    <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:2px">Ganhe dinheiro fazendo entregas na sua cidade</div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+            </a>
+        </section>
+
+        <!-- Link Lojista -->
+        <section class="section" style="padding-bottom:0">
+            <a href="lojista.html" target="_blank" style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#0F172A,#1E293B);border-radius:16px;padding:18px 20px;color:white;text-decoration:none;transition:all 0.25s ease">
+                <div style="width:48px;height:48px;background:linear-gradient(135deg,#8B5CF6,#A78BFA);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0">🏪</div>
+                <div style="flex:1">
+                    <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.95rem">Cadastre sua Loja</div>
+                    <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:2px">Venda seus produtos para toda a cidade</div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+            </a>
+        </section>
+
+        <!-- Link Admin -->
+        <section class="section" style="padding-bottom:24px">
+            <a href="admin.html" target="_blank" style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#0A0A1A,#1A0A2E);border:1px solid rgba(139,92,246,.2);border-radius:16px;padding:18px 20px;color:white;text-decoration:none;transition:all 0.25s ease">
+                <div style="width:48px;height:48px;background:linear-gradient(135deg,#F59E0B,#FBBF24);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0">👑</div>
+                <div style="flex:1">
+                    <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.95rem">Painel Administrativo</div>
+                    <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:2px">Gerencie a plataforma e suas receitas</div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+            </a>
+        </section>
+    </main>
+
+    <!-- CATEGORIES PAGE -->
+    <main id="page-categories" class="page">
+        <div class="page-top">
+            <button class="back-btn" onclick="navigateTo('home')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <h2>Todas as Categorias</h2>
+        </div>
+        <div class="all-categories" id="all-categories"></div>
+    </main>
+
+    <!-- STORE PAGE -->
+    <main id="page-store" class="page">
+        <div class="page-top">
+            <button class="back-btn" onclick="goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <h2 id="store-title">Loja</h2>
+        </div>
+        <div id="store-banner" class="store-banner"></div>
+        <div id="store-products" class="products-grid"></div>
+    </main>
+
+    <!-- SEARCH PAGE -->
+    <main id="page-search" class="page">
+        <div class="page-top">
+            <button class="back-btn" onclick="goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div class="search-input-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" id="search-input" placeholder="Buscar produtos, lojas..." oninput="handleSearch(this.value)" autofocus>
+            </div>
+        </div>
+        <div id="search-results" class="search-results">
+            <div class="search-placeholder">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ddd" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <p>Digite para buscar produtos e lojas</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- CART PAGE -->
+    <main id="page-cart" class="page">
+        <div class="page-top">
+            <button class="back-btn" onclick="goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <h2>Meu Carrinho</h2>
+        </div>
+        <div id="cart-content"></div>
+    </main>
+
+    <!-- CHECKOUT PAGE -->
+    <main id="page-checkout" class="page">
+        <div class="page-top">
+            <button class="back-btn" onclick="navigateTo('cart')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <h2>Finalizar Pedido</h2>
+        </div>
+        <div id="checkout-content"></div>
+    </main>
+
+    <!-- PROMOCOES PAGE -->
+    <main id="page-promocoes" class="page">
+        <div class="page-top">
+            <button class="back-btn" onclick="goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <h2>Promocoes Locais</h2>
+        </div>
+        <div id="promocoes-header" class="promocoes-header"></div>
+        <div id="promocoes-filters" class="promocoes-filters"></div>
+        <div id="promocoes-ranking" class="promocoes-ranking"></div>
+        <div id="promocoes-products" class="promocoes-products"></div>
+    </main>
+
+    <!-- PAINEL DO CLIENTE -->
+    <main id="page-perfil" class="page">
+        <div id="perfil-content"></div>
+    </main>
+
+    <!-- ORDER SUCCESS PAGE -->
+    <main id="page-success" class="page">
+        <div class="success-content">
+            <div class="success-icon">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+            </div>
+            <h2>Pedido Confirmado!</h2>
+            <p class="success-order-id"></p>
+            <p>Seu pedido foi recebido e esta sendo preparado. Voce recebera atualizacoes sobre a entrega.</p>
+            <div class="success-eta">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF4D00" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                <span>Tempo estimado: <strong>30-45 min</strong></span>
+            </div>
+            <button class="btn-primary" onclick="navigateTo('home'); cart = []; updateCartBadge();">Voltar ao inicio</button>
+        </div>
+    </main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="navigateTo('home')" data-page="home">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            <span>Inicio</span>
+        </button>
+        <button class="nav-item" onclick="navigateTo('categories')" data-page="categories">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            <span>Categorias</span>
+        </button>
+        <button class="nav-item nav-promo" onclick="navigateTo('promocoes')" data-page="promocoes">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            <span>Promocoes</span>
+        </button>
+        <button class="nav-item" onclick="navigateTo('search')" data-page="search">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <span>Buscar</span>
+        </button>
+        <button class="nav-item" onclick="navigateTo('cart')" data-page="cart">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span>Carrinho</span>
+        </button>
+    </nav>
+</div>
+
+<script src="firebase-config.js"></script>
+<script src="auth.js"></script>
+<script src="pix.js"></script>
+<script src="notifications.js"></script>
+<script src="app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>

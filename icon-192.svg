@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="40" fill="#FF4D00"/>
+  <path d="M96 40L44 72v72l52 32 52-32V72L96 40z" fill="rgba(255,255,255,0.9)"/>
+  <path d="M96 40L44 72v72l52 32 52-32V72L96 40zm0 12l40 24v48l-40 24-40-24V76l40-24z" fill="white"/>
+  <circle cx="96" cy="100" r="14" fill="#FF4D00"/>
+  <text x="96" y="170" text-anchor="middle" font-family="sans-serif" font-weight="800" font-size="16" fill="white" letter-spacing="1">DELIVERY</text>
+</svg>

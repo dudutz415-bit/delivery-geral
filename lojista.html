@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Geral - Painel do Lojista</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <style>
+:root {
+    --primary: #FF4D00;
+    --primary-dark: #E04400;
+    --primary-light: #FF6B2C;
+    --primary-glow: rgba(255,77,0,0.12);
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface-2: #F0EDE8;
+    --text: #1A1A1A;
+    --text-2: #6B6B6B;
+    --text-3: #A0A0A0;
+    --border: #E8E5E0;
+    --green: #22C55E;
+    --green-bg: rgba(34,197,94,0.1);
+    --yellow: #F59E0B;
+    --yellow-bg: rgba(245,158,11,0.1);
+    --blue: #3B82F6;
+    --blue-bg: rgba(59,130,246,0.1);
+    --red: #EF4444;
+    --red-bg: rgba(239,68,68,0.1);
+    --purple: #8B5CF6;
+    --purple-bg: rgba(139,92,246,0.1);
+    --radius: 16px;
+    --radius-sm: 12px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative}
+.page{display:none;padding-bottom:90px;animation:pageIn .3s ease}
+.page.active{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.h-left{display:flex;align-items:center;gap:12px}
+.h-logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.h-info h2{font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700}
+.h-info p{font-size:.7rem;color:var(--text-3)}
+.h-right{display:flex;gap:6px}
+.h-btn{width:38px;height:38px;border:none;background:var(--surface-2);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);transition:var(--transition);position:relative}
+.h-btn:hover{background:var(--border)}
+.notif-dot{position:absolute;top:7px;right:7px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--surface-2)}
+
+/* STORE STATUS */
+.store-status{margin:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.ss-left{display:flex;align-items:center;gap:10px}
+.ss-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.ss-dot.open{background:var(--green);box-shadow:0 0 8px rgba(34,197,94,.4);animation:pulse 2s ease-in-out infinite}
+.ss-dot.closed{background:var(--text-3)}
+@keyframes pulse{0%,100%{box-shadow:0 0 4px rgba(34,197,94,.3)}50%{box-shadow:0 0 12px rgba(34,197,94,.6)}}
+.ss-label{font-family:'Sora',sans-serif;font-size:.88rem;font-weight:600}
+.ss-sub{font-size:.72rem;color:var(--text-3)}
+.toggle{width:52px;height:28px;background:var(--border);border-radius:14px;position:relative;cursor:pointer;transition:var(--transition)}
+.toggle.on{background:var(--green)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;background:white;border-radius:50%;transition:var(--transition);box-shadow:0 2px 4px rgba(0,0,0,.15)}
+.toggle.on::after{left:27px}
+
+/* REVENUE CARD */
+.revenue-card{margin:0 20px 16px;background:linear-gradient(135deg,#1A1A1A,#2D2D2D);border-radius:var(--radius);padding:20px;color:white;position:relative;overflow:hidden}
+.revenue-card::before{content:'';position:absolute;top:-50%;right:-25%;width:200px;height:200px;background:rgba(255,77,0,.12);border-radius:50%}
+.rev-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
+.rev-label{font-size:.78rem;opacity:.7}
+.rev-value{font-family:'Sora',sans-serif;font-size:2rem;font-weight:800;margin-top:2px}
+.rev-period{padding:5px 12px;background:rgba(255,255,255,.12);border-radius:20px;font-size:.72rem;font-weight:600;color:white;cursor:pointer}
+.rev-stats{display:flex;gap:1px;margin-top:16px;background:rgba(255,255,255,.08);border-radius:12px;overflow:hidden;position:relative;z-index:1}
+.rv-stat{flex:1;padding:10px;text-align:center;background:rgba(255,255,255,.03)}
+.rv-val{font-family:'Sora',sans-serif;font-weight:800;font-size:1.1rem}
+.rv-lbl{font-size:.65rem;opacity:.5;margin-top:1px}
+
+/* QUICK STATS */
+.qstats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 20px 16px}
+.qs{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;display:flex;align-items:center;gap:12px}
+.qs-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.qs-text h4{font-family:'Sora',sans-serif;font-size:1.05rem;font-weight:800}
+.qs-text p{font-size:.68rem;color:var(--text-3)}
+
+/* SECTION */
+.section{margin:0 20px 20px}
+.section-title{font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.see-all{font-size:.78rem;color:var(--primary);cursor:pointer;font-weight:600;background:none;border:none;font-family:inherit}
+
+/* ACTIVE ORDERS */
+.order-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;transition:var(--transition)}
+.order-card:hover{border-color:var(--primary);box-shadow:var(--shadow)}
+.oc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.oc-id{font-family:'Sora',sans-serif;font-weight:700;font-size:.85rem}
+.oc-status{font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:20px}
+.oc-status.new{background:#DBEAFE;color:#1D4ED8}
+.oc-status.preparing{background:var(--yellow-bg);color:var(--yellow)}
+.oc-status.ready{background:var(--green-bg);color:var(--green)}
+.oc-status.delivered{background:#F3F4F6;color:var(--text-3)}
+.oc-customer{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.oc-avatar{width:32px;height:32px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.oc-name{font-size:.82rem;font-weight:600}
+.oc-time{font-size:.7rem;color:var(--text-3)}
+.oc-items{font-size:.78rem;color:var(--text-2);line-height:1.5;padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:8px}
+.oc-bottom{display:flex;justify-content:space-between;align-items:center}
+.oc-total{font-family:'Sora',sans-serif;font-weight:700;color:var(--primary)}
+.oc-actions{display:flex;gap:6px}
+.oc-btn{padding:8px 14px;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;transition:var(--transition);font-family:inherit}
+.oc-btn.primary{background:var(--primary);color:white}
+.oc-btn.primary:hover{background:var(--primary-dark)}
+.oc-btn.secondary{background:var(--surface-2);color:var(--text)}
+.oc-btn.secondary:hover{background:var(--border)}
+
+/* PRODUCTS */
+.prod-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px;transition:var(--transition)}
+.prod-card:hover{border-color:var(--primary)}
+.prod-emoji{width:48px;height:48px;background:var(--surface-2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.prod-info{flex:1;min-width:0}
+.prod-info h4{font-size:.85rem;font-weight:600}
+.prod-info p{font-size:.72rem;color:var(--text-3)}
+.prod-price{font-family:'Sora',sans-serif;font-weight:700;color:var(--primary);font-size:.9rem}
+.prod-stock{font-size:.68rem;padding:2px 8px;border-radius:8px;font-weight:600}
+.prod-stock.ok{background:var(--green-bg);color:var(--green)}
+.prod-stock.low{background:var(--yellow-bg);color:var(--yellow)}
+.prod-stock.out{background:var(--red-bg);color:var(--red)}
+
+/* NICHE SELECTOR */
+.niche-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.niche-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);padding:14px 8px;text-align:center;cursor:pointer;transition:var(--transition)}
+.niche-card:hover{border-color:var(--text-3);transform:translateY(-2px)}
+.niche-card.active{border-color:var(--primary);background:var(--primary-glow)}
+.niche-card.active .niche-name{color:var(--primary)}
+.niche-emoji{font-size:1.8rem;margin-bottom:6px;display:block}
+.niche-name{font-size:.72rem;font-weight:600;line-height:1.3}
+.niche-check{display:none;position:absolute;top:6px;right:6px;width:18px;height:18px;background:var(--primary);border-radius:50%;color:white;font-size:.6rem;align-items:center;justify-content:center}
+.niche-card.active{position:relative}
+.niche-card.active .niche-check{display:flex}
+
+/* MENU */
+.menu-group{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.menu-item{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;transition:var(--transition);border-bottom:1px solid var(--border)}
+.menu-item:last-child{border-bottom:none}
+.menu-item:hover{background:var(--surface-2)}
+.mi-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.mi-text{flex:1}
+.mi-text h4{font-size:.85rem;font-weight:600}
+.mi-text p{font-size:.7rem;color:var(--text-3);margin-top:1px}
+.mi-arrow{color:var(--text-3)}
+.mi-badge{background:var(--primary);color:white;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:10px}
+
+/* CHART */
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.chart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.chart-t{font-family:'Sora',sans-serif;font-size:.88rem;font-weight:700}
+.chart-v{font-family:'Sora',sans-serif;font-size:.82rem;font-weight:700;color:var(--green)}
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:110px}
+.cb-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.cb-bar{width:100%;border-radius:6px 6px 0 0;min-height:4px;position:relative;transition:var(--transition)}
+.cb-bar.today{background:linear-gradient(180deg,var(--primary),var(--primary-dark));box-shadow:0 0 10px rgba(255,77,0,.2)}
+.cb-bar:not(.today){background:var(--border)}
+.cb-val{font-size:.58rem;font-weight:700;color:var(--text-3);position:absolute;top:-14px;left:50%;transform:translateX(-50%);white-space:nowrap}
+.cb-day{font-size:.62rem;color:var(--text-3);font-weight:500}
+.cb-day.today{color:var(--primary);font-weight:700}
+
+/* REVIEWS */
+.review-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:8px}
+.review-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.review-avatar{width:36px;height:36px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:1rem}
+.review-info{flex:1}
+.review-info h4{font-size:.82rem;font-weight:600}
+.review-info p{font-size:.7rem;color:var(--text-3)}
+.review-stars{color:var(--yellow);font-size:.85rem;letter-spacing:1px}
+.review-text{font-size:.82rem;color:var(--text-2);line-height:1.5}
+
+/* PERF */
+.perf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.perf-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center}
+.pv{font-family:'Sora',sans-serif;font-weight:800;font-size:1.4rem;margin-bottom:2px}
+.pl{font-size:.7rem;color:var(--text-3)}
+.pbar{width:100%;height:4px;background:var(--surface-2);border-radius:4px;margin-top:8px;overflow:hidden}
+.pfill{height:100%;border-radius:4px}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-top:1px solid var(--border);display:flex;padding:6px 8px 10px;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,.04)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;background:none;border:none;cursor:pointer;color:var(--text-3);transition:var(--transition);font-family:inherit}
+.nav-item.active{color:var(--primary)}
+.nav-item span{font-size:.68rem;font-weight:500}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:white;padding:12px 24px;border-radius:12px;font-size:.85rem;font-weight:600;z-index:999;opacity:0;transition:all .3s ease;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ONBOARDING / CADASTRO */
+.onboard{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;max-width:480px;margin:0 auto}
+.onboard.hidden{display:none}
+.ob-header{padding:16px 20px;display:flex;align-items:center;gap:12px;background:var(--surface);border-bottom:1px solid var(--border)}
+.ob-back{width:36px;height:36px;border:none;background:var(--surface-2);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);transition:var(--transition)}
+.ob-back:hover{background:var(--border)}
+.ob-title{font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;flex:1}
+.ob-step-label{font-size:.75rem;color:var(--primary);font-weight:600}
+.ob-progress{height:4px;background:var(--surface-2);position:relative}
+.ob-progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-light));border-radius:0 4px 4px 0;transition:width .4s ease}
+.ob-body{flex:1;overflow-y:auto;padding:24px 20px}
+.ob-welcome{text-align:center;padding:40px 0 20px}
+.ob-welcome-icon{font-size:4rem;margin-bottom:16px;display:block}
+.ob-welcome h1{font-family:'Sora',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+.ob-welcome p{color:var(--text-2);margin-top:8px;font-size:.9rem;line-height:1.6}
+.ob-features{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:24px}
+.ob-feat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 12px;text-align:center}
+.ob-feat-icon{font-size:1.5rem;margin-bottom:6px;display:block}
+.ob-feat-text{font-size:.78rem;font-weight:600}
+.ob-feat-sub{font-size:.68rem;color:var(--text-3);margin-top:2px}
+.ob-footer{padding:16px 20px;background:var(--surface);border-top:1px solid var(--border)}
+.ob-btn{width:100%;padding:16px;border:none;background:var(--primary);color:white;font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;border-radius:14px;cursor:pointer;transition:var(--transition)}
+.ob-btn:hover{background:var(--primary-dark)}
+.ob-btn:disabled{background:var(--text-3);cursor:not-allowed}
+.ob-btn-sec{width:100%;padding:14px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Sora',sans-serif;font-size:.9rem;font-weight:600;border-radius:14px;cursor:pointer;margin-top:10px;transition:var(--transition)}
+.ob-btn-sec:hover{background:var(--surface-2)}
+.ob-label{font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:6px;display:block}
+.ob-input{width:100%;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:.9rem;color:var(--text);background:var(--surface);outline:none;transition:var(--transition);margin-bottom:14px}
+.ob-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-glow)}
+.ob-input::placeholder{color:var(--text-3)}
+select.ob-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23A0A0A0' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center}
+.ob-niche-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.ob-niche{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);padding:14px 6px;text-align:center;cursor:pointer;transition:var(--transition)}
+.ob-niche:hover{border-color:var(--text-3)}
+.ob-niche.sel{border-color:var(--primary);background:var(--primary-glow)}
+.ob-niche-emoji{font-size:1.6rem;display:block;margin-bottom:4px}
+.ob-niche-name{font-size:.7rem;font-weight:600;line-height:1.2}
+.ob-divider{height:1px;background:var(--border);margin:20px 0}
+.ob-check-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.ob-check-row:last-child{border-bottom:none}
+.ob-check{width:22px;height:22px;border:2px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:var(--transition);font-size:.7rem;color:transparent}
+.ob-check.checked{background:var(--primary);border-color:var(--primary);color:white}
+.ob-check-text{font-size:.85rem}
+.ob-check-text small{display:block;font-size:.72rem;color:var(--text-3);margin-top:1px}
+.ob-success{text-align:center;padding:40px 0}
+.ob-success-icon{font-size:4rem;margin-bottom:16px;animation:bounceIn .5s ease}
+@keyframes bounceIn{0%{transform:scale(0)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+.ob-success h2{font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:800}
+.ob-success p{color:var(--text-2);margin-top:8px;font-size:.88rem;line-height:1.6}
+
+@media(min-width:481px){body{background:#EDEAE5}.app{box-shadow:0 0 40px rgba(0,0,0,.08);border-left:1px solid var(--border);border-right:1px solid var(--border)}}
+    </style>
+</head>
+<body>
+<div class="app">
+
+    <!-- ===== ONBOARDING / CADASTRO ===== -->
+    <div class="onboard" id="onboard">
+        <div class="ob-header">
+            <button class="ob-back" id="ob-back-btn" onclick="obBack()" style="visibility:hidden">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div class="ob-title" id="ob-title">Cadastro de Loja</div>
+            <div class="ob-step-label" id="ob-step-label">1 de 6</div>
+        </div>
+        <div class="ob-progress"><div class="ob-progress-fill" id="ob-progress" style="width:16.6%"></div></div>
+        <div class="ob-body" id="ob-body"></div>
+        <div class="ob-footer" id="ob-footer"></div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="h-left">
+            <div class="h-logo" id="store-logo">🛒</div>
+            <div class="h-info">
+                <h2 id="store-name">Minha Loja</h2>
+                <p id="store-niche-label">Selecione seu nicho</p>
+            </div>
+        </div>
+        <div class="h-right">
+            <button class="h-btn" onclick="showTab('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button>
+            <button class="h-btn" onclick="showTab('config')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+        </div>
+    </div>
+
+    <!-- ===== HOME / DASHBOARD ===== -->
+    <div id="tab-home" class="page active">
+        <div class="store-status">
+            <div class="ss-left">
+                <div class="ss-dot open" id="ss-dot"></div>
+                <div><div class="ss-label" id="ss-label">Loja Aberta</div><div class="ss-sub" id="ss-sub">Recebendo pedidos</div></div>
+            </div>
+            <div class="toggle on" id="toggle-store" onclick="toggleStore()"></div>
+        </div>
+
+        <div class="revenue-card">
+            <div class="rev-top">
+                <div><div class="rev-label">Faturamento hoje</div><div class="rev-value" id="lojista-rev-hoje">R$ 0,00</div></div>
+                <div class="rev-period">Hoje</div>
+            </div>
+            <div class="rev-stats">
+                <div class="rv-stat"><div class="rv-val" id="lojista-pedidos-hoje">0</div><div class="rv-lbl">Pedidos</div></div>
+                <div class="rv-stat"><div class="rv-val" id="lojista-avaliacao">0.0</div><div class="rv-lbl">Avaliacao</div></div>
+                <div class="rv-stat"><div class="rv-val" id="lojista-ticket">R$ 0</div><div class="rv-lbl">Ticket medio</div></div>
+                <div class="rv-stat"><div class="rv-val" id="lojista-aprovacao">0%</div><div class="rv-lbl">Aprovacao</div></div>
+            </div>
+        </div>
+
+        <div class="qstats">
+            <div class="qs"><div class="qs-icon" style="background:var(--green-bg)">💰</div><div class="qs-text"><h4 id="lojista-rev-mes">R$ 0</h4><p>Faturamento mes</p></div></div>
+            <div class="qs"><div class="qs-icon" style="background:var(--yellow-bg)">📦</div><div class="qs-text"><h4 id="lojista-pedidos-mes">0</h4><p>Pedidos no mes</p></div></div>
+            <div class="qs"><div class="qs-icon" style="background:var(--blue-bg)">👥</div><div class="qs-text"><h4 id="lojista-clientes">0</h4><p>Clientes unicos</p></div></div>
+            <div class="qs"><div class="qs-icon" style="background:var(--purple-bg)">🔄</div><div class="qs-text"><h4 id="lojista-retorno">0%</h4><p>Retorno clientes</p></div></div>
+        </div>
+
+        <!-- Active Orders -->
+        <div class="section">
+            <div class="section-title">Pedidos ativos <span class="mi-badge" id="lojista-active-count">0</span></div>
+            <div id="active-orders"></div>
+        </div>
+
+        <!-- Chart -->
+        <div class="section">
+            <div class="section-title">Vendas da semana</div>
+            <div class="chart-wrap">
+                <div class="chart-head"><div class="chart-t">Semana atual</div><div class="chart-v" id="lojista-chart-total">R$ 0</div></div>
+                <div class="chart-bars" id="chart-bars"></div>
+            </div>
+        </div>
+
+        <!-- Reviews -->
+        <div class="section">
+            <div class="section-title">Avaliacoes recentes <button class="see-all">Ver todas</button></div>
+            <div id="reviews-list"></div>
+        </div>
+    </div>
+
+    <!-- ===== PEDIDOS ===== -->
+    <div id="tab-pedidos" class="page">
+        <div class="section" style="padding-top:16px">
+            <div class="section-title">Todos os pedidos</div>
+            <div id="all-orders"></div>
+        </div>
+    </div>
+
+    <!-- ===== PRODUTOS ===== -->
+    <div id="tab-produtos" class="page">
+        <div class="section" style="padding-top:16px">
+            <div class="section-title">Meus Produtos <button class="see-all" onclick="showToast('Adicionar produto')">+ Adicionar</button></div>
+            <div id="products-list"></div>
+        </div>
+    </div>
+
+    <!-- ===== CONFIG / PERFIL ===== -->
+    <div id="tab-config" class="page">
+        <!-- Niche Selection -->
+        <div class="section" style="padding-top:16px">
+            <div class="section-title">Nicho da sua Loja</div>
+            <p style="font-size:.82rem;color:var(--text-2);margin-bottom:14px">Selecione a categoria que melhor define o seu negocio:</p>
+            <div class="niche-grid" id="niche-grid"></div>
+        </div>
+
+        <!-- Store Info -->
+        <div class="section">
+            <div class="section-title">Dados da Loja</div>
+            <div class="menu-group">
+                <div class="menu-item"><div class="mi-icon" style="background:var(--primary-glow)"><span id="cfg-emoji">🛒</span></div><div class="mi-text"><h4 id="cfg-store-name">Minha Loja</h4><p>Nome da loja</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item"><div class="mi-icon" style="background:var(--green-bg)">📍</div><div class="mi-text"><h4 id="cfg-address">Nao cadastrado</h4><p>Endereco da loja</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item"><div class="mi-icon" style="background:var(--blue-bg)">📱</div><div class="mi-text"><h4 id="cfg-phone">Nao cadastrado</h4><p>Telefone</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item"><div class="mi-icon" style="background:var(--yellow-bg)">🕐</div><div class="mi-text"><h4 id="cfg-hours">Nao cadastrado</h4><p>Horario de funcionamento</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item"><div class="mi-icon" style="background:var(--purple-bg)">📸</div><div class="mi-text"><h4>Logo e fotos</h4><p>Imagens da loja e banner</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+            </div>
+        </div>
+
+        <!-- Performance -->
+        <div class="section">
+            <div class="section-title">Desempenho</div>
+            <div class="perf-grid" id="perf-grid">
+                <div style="text-align:center;padding:40px 20px;color:var(--text-w3);grid-column:1/-1">
+                    <div style="font-size:3rem;margin-bottom:16px">📊</div>
+                    <h3 style="color:var(--text-w2);margin-bottom:8px">Sem dados de desempenho</h3>
+                    <p>Os dados aparecerao quando voce comecar a receber pedidos!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial -->
+        <div class="section">
+            <div class="section-title">Financeiro</div>
+            <div class="menu-group">
+                <div class="menu-item"><div class="mi-icon" style="background:var(--green-bg)">💰</div><div class="mi-text"><h4>Faturamento</h4><p>Relatorios de vendas</p></div><span id="fin-faturamento" style="font-family:'Sora';font-weight:800;color:var(--green);font-size:.88rem">R$ 0,00</span></div>
+                <div class="menu-item"><div class="mi-icon" style="background:var(--yellow-bg)">🏦</div><div class="mi-text"><h4>Saques</h4><p>Transferir para conta</p></div><span id="fin-saques" style="font-family:'Sora';font-weight:800;color:var(--yellow);font-size:.88rem">R$ 0,00</span></div>
+                <div class="menu-item"><div class="mi-icon" style="background:var(--blue-bg)">📊</div><div class="mi-text"><h4>Comissao Delivery Geral</h4><p>Taxa de 12% sobre vendas</p></div><span id="fin-comissao" style="font-family:'Sora';font-weight:800;color:var(--blue);font-size:.88rem">R$ 0,00</span></div>
+                <div class="menu-item"><div class="mi-icon" style="background:var(--purple-bg)">📋</div><div class="mi-text"><h4>Notas fiscais</h4><p>Emissao e historico</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="section">
+            <div class="section-title">Configuracoes</div>
+            <div class="menu-group">
+                <div class="menu-item" onclick="showToast('Entrega e frete')"><div class="mi-icon" style="background:var(--surface-2)">🚚</div><div class="mi-text"><h4>Entrega e frete</h4><p>Raio, taxa, tempo estimado</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item" onclick="showToast('Pagamentos')"><div class="mi-icon" style="background:var(--surface-2)">💳</div><div class="mi-text"><h4>Formas de pagamento</h4><p>PIX, cartao, dinheiro</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item" onclick="showToast('Promocoes')"><div class="mi-icon" style="background:var(--surface-2)">🏷️</div><div class="mi-text"><h4>Promocoes e cupons</h4><p>Criar ofertas e descontos</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item" onclick="showToast('Equipe')"><div class="mi-icon" style="background:var(--surface-2)">👥</div><div class="mi-text"><h4>Equipe</h4><p>Gerenciar funcionarios</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item" onclick="showToast('Suporte')"><div class="mi-icon" style="background:var(--surface-2)">❓</div><div class="mi-text"><h4>Ajuda e Suporte</h4><p>FAQ, chat, telefone</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <button style="width:100%;padding:14px;background:none;border:1px solid var(--red-bg);border-radius:12px;color:var(--red);font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px" onclick="showToast('Voce saiu da conta')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Sair da conta
+            </button>
+            <p style="text-align:center;font-size:.7rem;color:var(--text-3);margin-top:12px;padding-bottom:16px">Delivery Geral Lojista v1.0</p>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-tab="home" onclick="showTab('home')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg><span>Dashboard</span></button>
+        <button class="nav-item" data-tab="pedidos" onclick="showTab('pedidos')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span>Pedidos</span></button>
+        <button class="nav-item" data-tab="produtos" onclick="showTab('produtos')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><span>Produtos</span></button>
+        <button class="nav-item" data-tab="config" onclick="showTab('config')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Perfil</span></button>
+    </nav>
+</div>
+
+<script>
+// === ALL NICHES (from categories) ===
+const niches = [
+    {id:'supermarket',emoji:'🛒',name:'Supermercado'},{id:'restaurant',emoji:'🍽️',name:'Restaurante'},
+    {id:'pharmacy',emoji:'💊',name:'Farmacia'},{id:'petshop',emoji:'🐾',name:'Pet Shop'},
+    {id:'bakery',emoji:'🥐',name:'Padaria'},{id:'butcher',emoji:'🥩',name:'Acougue'},
+    {id:'greengrocer',emoji:'🥬',name:'Hortifruti'},{id:'beverages',emoji:'🍷',name:'Bebidas'},
+    {id:'electronics',emoji:'📱',name:'Eletronicos'},{id:'fashion',emoji:'👗',name:'Moda'},
+    {id:'books',emoji:'📚',name:'Livraria'},{id:'flowers',emoji:'💐',name:'Floricultura'},
+    {id:'toys',emoji:'🧸',name:'Brinquedos'},{id:'sports',emoji:'⚽',name:'Esportes'},
+    {id:'cosmetics',emoji:'💄',name:'Cosmeticos'},{id:'hardware',emoji:'🔧',name:'Ferragens'},
+    {id:'office',emoji:'📝',name:'Papelaria'},{id:'furniture',emoji:'🛋️',name:'Moveis'},
+    {id:'health',emoji:'🌿',name:'Saude Natural'},{id:'cleaning',emoji:'🧹',name:'Limpeza'},
+    {id:'baby',emoji:'🍼',name:'Bebe'},{id:'autoparts',emoji:'🚗',name:'Auto Pecas'},
+    {id:'fishing',emoji:'🎣',name:'Pesca'},{id:'garden',emoji:'🌻',name:'Jardinagem'},
+    {id:'music',emoji:'🎸',name:'Instrumentos'},{id:'games',emoji:'🎮',name:'Games'},
+    {id:'gourmet',emoji:'🧀',name:'Gourmet'},{id:'sweets',emoji:'🍰',name:'Doces'},
+    {id:'organic',emoji:'🥗',name:'Organicos'},{id:'frozen',emoji:'🧊',name:'Congelados'},
+    {id:'asian',emoji:'🍜',name:'Mercado Asiatico'},{id:'arabic',emoji:'🧆',name:'Mercado Arabe'},
+    {id:'italian',emoji:'🍝',name:'Mercado Italiano'},{id:'mexican',emoji:'🌮',name:'Mercado Mexicano'},
+    {id:'indian',emoji:'🍛',name:'Mercado Indiano'},{id:'japanese',emoji:'🍣',name:'Mercado Japones'},
+    {id:'convenience',emoji:'🏪',name:'Conveniencia'},{id:'wholesale',emoji:'📦',name:'Atacado'},
+    {id:'wine',emoji:'🍷',name:'Vinhos'},{id:'coffee',emoji:'☕',name:'Cafeteria'},
+    {id:'icecream',emoji:'🍦',name:'Sorveteria'},{id:'pizza',emoji:'🍕',name:'Pizzaria'},
+    {id:'burger',emoji:'🍔',name:'Hamburgueria'},{id:'sushi',emoji:'🍱',name:'Sushi'},
+    {id:'vegan',emoji:'🥑',name:'Vegano'},{id:'fitness',emoji:'💪',name:'Fitness'},
+];
+
+let selectedNiche = 'supermarket';
+
+function renderNiches() {
+    document.getElementById('niche-grid').innerHTML = niches.map(n => `
+        <div class="niche-card ${n.id===selectedNiche?'active':''}" onclick="selectNiche('${n.id}')">
+            <div class="niche-check">✓</div>
+            <span class="niche-emoji">${n.emoji}</span>
+            <div class="niche-name">${n.name}</div>
+        </div>
+    `).join('');
+}
+
+function selectNiche(id) {
+    selectedNiche = id;
+    const n = niches.find(x=>x.id===id);
+    renderNiches();
+    document.getElementById('store-logo').textContent = n.emoji;
+    document.getElementById('store-name').textContent = n.name;
+    document.getElementById('store-niche-label').textContent = n.name + ' • Delivery Geral';
+    document.getElementById('cfg-emoji').textContent = n.emoji;
+    document.getElementById('cfg-store-name').textContent = n.name;
+    showToast(n.emoji + ' Nicho: ' + n.name);
+}
+
+// === NAVIGATION ===
+function showTab(tab) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('tab-'+tab).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.tab===tab));
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// === STORE TOGGLE ===
+let storeOpen = true;
+function toggleStore() {
+    storeOpen = !storeOpen;
+    document.getElementById('ss-dot').className = 'ss-dot '+(storeOpen?'open':'closed');
+    document.getElementById('ss-label').textContent = storeOpen?'Loja Aberta':'Loja Fechada';
+    document.getElementById('ss-sub').textContent = storeOpen?'Recebendo pedidos':'Pedidos pausados';
+    document.getElementById('toggle-store').className = 'toggle '+(storeOpen?'on':'');
+    showToast(storeOpen?'Loja aberta!':'Loja fechada');
+}
+
+// === ORDERS ===
+let orders = [];
+
+function renderOrders(containerId, list) {
+    document.getElementById(containerId).innerHTML = list.map(o => `
+        <div class="order-card">
+            <div class="oc-top"><div class="oc-id">#${o.id}</div><div class="oc-status ${o.status}">${o.statusLabel}</div></div>
+            <div class="oc-customer"><div class="oc-avatar">${o.avatar}</div><div><div class="oc-name">${o.customer}</div><div class="oc-time">${o.time}</div></div></div>
+            <div class="oc-items">${o.items}</div>
+            <div class="oc-bottom">
+                <div class="oc-total">R$ ${o.total.toFixed(2).replace('.',',')}</div>
+                <div class="oc-actions">
+                    ${o.status==='new'?'<button class="oc-btn secondary" onclick="showToast(\'Recusado\')">Recusar</button><button class="oc-btn primary" onclick="showToast(\'Pedido aceito!\')">Aceitar</button>':''}
+                    ${o.status==='preparing'?'<button class="oc-btn primary" onclick="showToast(\'Pedido pronto!\')">Pronto</button>':''}
+                    ${o.status==='ready'?'<button class="oc-btn primary" onclick="showToast(\'Entregador chamado!\')">Chamar entregador</button>':''}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// === PRODUCTS ===
+let products = [];
+
+function renderProducts() {
+    document.getElementById('products-list').innerHTML = products.map(p => `
+        <div class="prod-card">
+            <div class="prod-emoji">${p.emoji}</div>
+            <div class="prod-info"><h4>${p.name}</h4><p>${p.desc}</p></div>
+            <div style="text-align:right">
+                <div class="prod-price">R$ ${p.price.toFixed(2).replace('.',',')}</div>
+                <div class="prod-stock ${p.stock}">${p.stockLabel}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// === CHART ===
+let weekSales = [];
+function renderChart() {
+    if (!weekSales.length) {
+        document.getElementById('chart-bars').innerHTML = '<p style="text-align:center;color:var(--text-3);padding:20px">Sem dados ainda</p>';
+        return;
+    }
+    const max = Math.max(...weekSales.map(d=>d.val));
+    document.getElementById('chart-bars').innerHTML = weekSales.map(d => {
+        const h = Math.max(8,(d.val/max)*100);
+        return `<div class="cb-wrap"><div class="cb-bar ${d.today?'today':''}" style="height:${h}%"><span class="cb-val">R$${(d.val/1000).toFixed(1)}k</span></div><span class="cb-day ${d.today?'today':''}">${d.day}</span></div>`;
+    }).join('');
+}
+
+// === REVIEWS ===
+let reviews = [];
+function renderReviews() {
+    document.getElementById('reviews-list').innerHTML = reviews.map(r => `
+        <div class="review-card">
+            <div class="review-top"><div class="review-avatar">${r.avatar}</div><div class="review-info"><h4>${r.name}</h4><p>${r.time}</p></div><div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div></div>
+            <div class="review-text">${r.text}</div>
+        </div>
+    `).join('');
+}
+
+// === TOAST ===
+function showToast(msg){document.querySelectorAll('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},2000)}
+
+// === INIT ===
+renderNiches();
+renderOrders('active-orders', orders.filter(o=>o.status!=='delivered'));
+renderOrders('all-orders', orders);
+renderProducts();
+renderChart();
+renderReviews();
+selectNiche('supermarket');
+
+// ========================================
+// ONBOARDING / CADASTRO DO LOJISTA
+// ========================================
+
+let obStep = 0;
+let obData = { nome:'', cnpj:'', email:'', phone:'', niche:'', storeName:'', address:'', cep:'', city:'', hours:'08:00 - 22:00', bank:'', pix:'', agree1:false, agree2:false, agree3:false };
+
+const obSteps = [
+    { title:'Cadastro de Loja', label:'Inicio' },
+    { title:'Dados do Responsavel', label:'Passo 1 de 5' },
+    { title:'Nicho da Loja', label:'Passo 2 de 5' },
+    { title:'Dados da Loja', label:'Passo 3 de 5' },
+    { title:'Dados Bancarios', label:'Passo 4 de 5' },
+    { title:'Termos e Condicoes', label:'Passo 5 de 5' },
+    { title:'Cadastro Concluido', label:'Finalizado' },
+];
+
+function obRender() {
+    const total = obSteps.length;
+    const pct = ((obStep + 1) / total) * 100;
+    document.getElementById('ob-progress').style.width = pct + '%';
+    document.getElementById('ob-title').textContent = obSteps[obStep].title;
+    document.getElementById('ob-step-label').textContent = obSteps[obStep].label;
+    document.getElementById('ob-back-btn').style.visibility = obStep > 0 && obStep < 6 ? 'visible' : 'hidden';
+
+    const body = document.getElementById('ob-body');
+    const footer = document.getElementById('ob-footer');
+
+    // STEP 0: Welcome
+    if (obStep === 0) {
+        body.innerHTML = `
+            <div class="ob-welcome">
+                <span class="ob-welcome-icon">🏪</span>
+                <h1>Cadastre sua loja no<br>Delivery Geral</h1>
+                <p>Venda seus produtos para milhares de clientes na sua cidade. Cadastro rapido em poucos minutos.</p>
+                <div class="ob-features">
+                    <div class="ob-feat"><span class="ob-feat-icon">📱</span><div class="ob-feat-text">Painel completo</div><div class="ob-feat-sub">Gerencie tudo pelo celular</div></div>
+                    <div class="ob-feat"><span class="ob-feat-icon">🚚</span><div class="ob-feat-text">Entregadores prontos</div><div class="ob-feat-sub">Rede de entregadores 24h</div></div>
+                    <div class="ob-feat"><span class="ob-feat-icon">💰</span><div class="ob-feat-text">Receba rapido</div><div class="ob-feat-sub">Saque diario via PIX</div></div>
+                    <div class="ob-feat"><span class="ob-feat-icon">📊</span><div class="ob-feat-text">Relatorios</div><div class="ob-feat-sub">Acompanhe suas vendas</div></div>
+                </div>
+            </div>
+        `;
+        footer.innerHTML = `<button class="ob-btn" onclick="obNext()">Comecar cadastro</button>
+            <button class="ob-btn-sec" onclick="obSkip()">Ja tenho conta - Entrar</button>`;
+    }
+
+    // STEP 1: Owner data
+    else if (obStep === 1) {
+        body.innerHTML = `
+            <p style="color:var(--text-2);font-size:.85rem;margin-bottom:20px">Informe os dados do responsavel pela loja:</p>
+            <label class="ob-label">Nome completo *</label>
+            <input class="ob-input" id="ob-nome" placeholder="Seu nome completo" value="${obData.nome}">
+            <label class="ob-label">CNPJ ou CPF *</label>
+            <input class="ob-input" id="ob-cnpj" placeholder="00.000.000/0000-00" value="${obData.cnpj}">
+            <label class="ob-label">E-mail *</label>
+            <input class="ob-input" id="ob-email" type="email" placeholder="seu@email.com" value="${obData.email}">
+            <label class="ob-label">Telefone / WhatsApp *</label>
+            <input class="ob-input" id="ob-phone" placeholder="(11) 99999-0000" value="${obData.phone}">
+            <label class="ob-label">Senha *</label>
+            <input class="ob-input" type="password" placeholder="Minimo 6 caracteres">
+            <label class="ob-label">Confirmar senha *</label>
+            <input class="ob-input" type="password" placeholder="Repita a senha">
+        `;
+        footer.innerHTML = `<button class="ob-btn" onclick="obSave1()">Continuar</button>`;
+    }
+
+    // STEP 2: Niche selection
+    else if (obStep === 2) {
+        body.innerHTML = `
+            <p style="color:var(--text-2);font-size:.85rem;margin-bottom:16px">Selecione a categoria que melhor representa sua loja:</p>
+            <div class="ob-niche-grid" id="ob-niche-grid"></div>
+        `;
+        footer.innerHTML = `<button class="ob-btn" id="ob-niche-btn" onclick="obNext()" ${obData.niche?'':'disabled'}>Continuar</button>`;
+        setTimeout(renderObNiches, 10);
+    }
+
+    // STEP 3: Store data
+    else if (obStep === 3) {
+        const n = niches.find(x => x.id === obData.niche) || { emoji:'🏪', name:'Loja' };
+        body.innerHTML = `
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;background:var(--primary-glow);padding:12px 16px;border-radius:12px">
+                <span style="font-size:1.8rem">${n.emoji}</span>
+                <div><strong style="font-size:.9rem">${n.name}</strong><div style="font-size:.72rem;color:var(--text-3)">Nicho selecionado</div></div>
+            </div>
+            <label class="ob-label">Nome da loja *</label>
+            <input class="ob-input" id="ob-storename" placeholder="Ex: Mercado do Ze" value="${obData.storeName}">
+            <label class="ob-label">Endereco completo *</label>
+            <input class="ob-input" id="ob-address" placeholder="Rua, numero, bairro" value="${obData.address}">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div><label class="ob-label">CEP *</label><input class="ob-input" id="ob-cep" placeholder="00000-000" value="${obData.cep}"></div>
+                <div><label class="ob-label">Cidade *</label><input class="ob-input" id="ob-city" placeholder="Sua cidade" value="${obData.city}"></div>
+            </div>
+            <label class="ob-label">Horario de funcionamento</label>
+            <input class="ob-input" id="ob-hours" placeholder="08:00 - 22:00" value="${obData.hours}">
+            <label class="ob-label">Descricao da loja</label>
+            <textarea class="ob-input" style="height:80px;resize:none" placeholder="Conte um pouco sobre sua loja..."></textarea>
+            <label class="ob-label">Logo da loja (opcional)</label>
+            <div style="border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;color:var(--text-3);font-size:.85rem" onclick="showToast('Upload de imagem em breve')">
+                📷 Clique para enviar sua logo
+            </div>
+        `;
+        footer.innerHTML = `<button class="ob-btn" onclick="obSave3()">Continuar</button>`;
+    }
+
+    // STEP 4: Bank data
+    else if (obStep === 4) {
+        body.innerHTML = `
+            <p style="color:var(--text-2);font-size:.85rem;margin-bottom:20px">Configure como voce vai receber seus pagamentos:</p>
+            <label class="ob-label">Banco</label>
+            <select class="ob-input" id="ob-bank">
+                <option value="">Selecione o banco</option>
+                <option>Nubank</option><option>Itau</option><option>Bradesco</option><option>Banco do Brasil</option><option>Santander</option><option>Caixa</option><option>Inter</option><option>C6 Bank</option><option>PagBank</option><option>Mercado Pago</option><option>Outro</option>
+            </select>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div><label class="ob-label">Agencia</label><input class="ob-input" placeholder="0001"></div>
+                <div><label class="ob-label">Conta</label><input class="ob-input" placeholder="12345-6"></div>
+            </div>
+            <label class="ob-label">Tipo de conta</label>
+            <select class="ob-input">
+                <option>Conta Corrente</option><option>Conta Poupanca</option><option>Conta Pagamento</option>
+            </select>
+            <div class="ob-divider"></div>
+            <label class="ob-label">Chave PIX (para recebimento rapido)</label>
+            <input class="ob-input" id="ob-pix" placeholder="CPF, email, telefone ou chave aleatoria" value="${obData.pix}">
+            <div style="background:var(--green-bg);padding:12px 16px;border-radius:12px;display:flex;gap:10px;align-items:center">
+                <span style="font-size:1.3rem">💡</span>
+                <div style="font-size:.78rem;color:var(--text-2)">Com PIX voce recebe seus pagamentos em ate 1 dia util!</div>
+            </div>
+        `;
+        footer.innerHTML = `<button class="ob-btn" onclick="obNext()">Continuar</button>`;
+    }
+
+    // STEP 5: Terms
+    else if (obStep === 5) {
+        body.innerHTML = `
+            <p style="color:var(--text-2);font-size:.85rem;margin-bottom:20px">Para finalizar, aceite os termos e condicoes:</p>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px">
+                <div style="font-family:'Sora',sans-serif;font-size:.88rem;font-weight:700;margin-bottom:8px">Resumo do seu cadastro</div>
+                <div style="font-size:.82rem;color:var(--text-2);line-height:1.8">
+                    👤 <strong>${obData.nome || 'Responsavel'}</strong><br>
+                    🏪 <strong>${obData.storeName || 'Loja'}</strong> (${(niches.find(x=>x.id===obData.niche)||{name:'--'}).name})<br>
+                    📍 ${obData.address || 'Endereco'}, ${obData.city || 'Cidade'}<br>
+                    📱 ${obData.phone || 'Telefone'}<br>
+                    ✉️ ${obData.email || 'Email'}
+                </div>
+            </div>
+            <div class="ob-check-row" onclick="obToggle(1)">
+                <div class="ob-check ${obData.agree1?'checked':''}">✓</div>
+                <div class="ob-check-text">Aceito os <strong>Termos de Uso</strong> do Delivery Geral<small>Politica de uso da plataforma para lojistas</small></div>
+            </div>
+            <div class="ob-check-row" onclick="obToggle(2)">
+                <div class="ob-check ${obData.agree2?'checked':''}">✓</div>
+                <div class="ob-check-text">Aceito a <strong>Politica de Privacidade</strong><small>Como tratamos seus dados pessoais</small></div>
+            </div>
+            <div class="ob-check-row" onclick="obToggle(3)">
+                <div class="ob-check ${obData.agree3?'checked':''}">✓</div>
+                <div class="ob-check-text">Aceito a <strong>taxa de 12%</strong> sobre vendas<small>Comissao padrao da plataforma</small></div>
+            </div>
+            <div style="background:var(--yellow-bg);padding:12px 16px;border-radius:12px;display:flex;gap:10px;align-items:center;margin-top:16px">
+                <span style="font-size:1.3rem">📋</span>
+                <div style="font-size:.78rem;color:var(--text-2)">Sua loja sera analisada em ate 24h. Voce recebera um email com a confirmacao.</div>
+            </div>
+        `;
+        const allOk = obData.agree1 && obData.agree2 && obData.agree3;
+        footer.innerHTML = `<button class="ob-btn" onclick="obFinish()" ${allOk?'':'disabled'}>Finalizar Cadastro</button>`;
+    }
+
+    // STEP 6: Success
+    else if (obStep === 6) {
+        body.innerHTML = `
+            <div class="ob-success">
+                <div class="ob-success-icon">🎉</div>
+                <h2>Cadastro enviado!</h2>
+                <p>Sua loja <strong>${obData.storeName || 'Loja'}</strong> foi cadastrada com sucesso no Delivery Geral.</p>
+                <div style="background:var(--green-bg);padding:14px 18px;border-radius:12px;margin-top:20px;text-align:left">
+                    <div style="font-size:.85rem;font-weight:600;color:var(--green);margin-bottom:6px">Proximos passos:</div>
+                    <div style="font-size:.8rem;color:var(--text-2);line-height:1.7">
+                        1. Analise do cadastro (ate 24h)<br>
+                        2. Email de confirmacao<br>
+                        3. Adicione seus produtos<br>
+                        4. Comece a vender!
+                    </div>
+                </div>
+            </div>
+        `;
+        footer.innerHTML = `<button class="ob-btn" onclick="obEnterDashboard()">Acessar Painel da Loja</button>`;
+    }
+}
+
+function renderObNiches() {
+    const grid = document.getElementById('ob-niche-grid');
+    if (!grid) return;
+    grid.innerHTML = niches.map(n => `
+        <div class="ob-niche ${n.id===obData.niche?'sel':''}" onclick="obSelectNiche('${n.id}')">
+            <span class="ob-niche-emoji">${n.emoji}</span>
+            <div class="ob-niche-name">${n.name}</div>
+        </div>
+    `).join('');
+}
+
+function obSelectNiche(id) {
+    obData.niche = id;
+    renderObNiches();
+    document.getElementById('ob-niche-btn').disabled = false;
+}
+
+function obNext() { obStep++; obRender(); document.querySelector('.ob-body').scrollTop = 0; }
+function obBack() { if (obStep > 0) { obStep--; obRender(); } }
+function obSkip() { document.getElementById('onboard').classList.add('hidden'); }
+
+function obSave1() {
+    obData.nome = document.getElementById('ob-nome')?.value || '';
+    obData.cnpj = document.getElementById('ob-cnpj')?.value || '';
+    obData.email = document.getElementById('ob-email')?.value || '';
+    obData.phone = document.getElementById('ob-phone')?.value || '';
+    obNext();
+}
+
+function obSave3() {
+    obData.storeName = document.getElementById('ob-storename')?.value || '';
+    obData.address = document.getElementById('ob-address')?.value || '';
+    obData.cep = document.getElementById('ob-cep')?.value || '';
+    obData.city = document.getElementById('ob-city')?.value || '';
+    obData.hours = document.getElementById('ob-hours')?.value || '08:00 - 22:00';
+    obNext();
+}
+
+function obToggle(n) {
+    if (n===1) obData.agree1 = !obData.agree1;
+    if (n===2) obData.agree2 = !obData.agree2;
+    if (n===3) obData.agree3 = !obData.agree3;
+    obRender();
+}
+
+function obFinish() {
+    if (!obData.agree1 || !obData.agree2 || !obData.agree3) return;
+    obStep = 6;
+    obRender();
+}
+
+function obEnterDashboard() {
+    document.getElementById('onboard').classList.add('hidden');
+    // Apply data to dashboard
+    if (obData.niche) selectNiche(obData.niche);
+    if (obData.storeName) {
+        document.getElementById('store-name').textContent = obData.storeName;
+        document.getElementById('cfg-store-name').textContent = obData.storeName;
+    }
+}
+
+// Check if already registered (localStorage)
+if (!localStorage.getItem('dg_lojista_registered')) {
+    obRender();
+} else {
+    document.getElementById('onboard').classList.add('hidden');
+}
+
+// ===== FIREBASE AUTH GUARD + REALTIME ORDERS =====
+const firebaseConfigLojista = {
+  apiKey: "AIzaSyBPdbt1b-tQaYtQgZKLKRaiZhp80bkuI8I",
+  authDomain: "delivery-geral-af64e.firebaseapp.com",
+  projectId: "delivery-geral-af64e",
+  storageBucket: "delivery-geral-af64e.firebasestorage.app",
+  messagingSenderId: "414484131141",
+  appId: "1:414484131141:web:67d058d157e6b7fc0f622c",
+  measurementId: "G-WHS4WZJXFH"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfigLojista);
+const dbL = firebase.firestore();
+const authL = firebase.auth();
+
+authL.onAuthStateChanged(async (user) => {
+    if (!user) {
+        window.location.href = 'index.html';
+        return;
+    }
+    const doc = await dbL.collection('users').doc(user.uid).get();
+    const profile = doc.exists ? doc.data() : {};
+    if (profile.role !== 'store' && profile.role !== 'admin') {
+        showToast('Acesso negado. Redirecionando...');
+        setTimeout(() => window.location.href = 'index.html', 1500);
+        return;
+    }
+    // Escuta pedidos em tempo real da loja
+    dbL.collection('orders').where('storeId', '==', user.uid)
+        .orderBy('createdAt', 'desc')
+        .onSnapshot((snap) => {
+            const orders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderRealtimeOrders(orders);
+            updateStoreStats(orders);
+            // Atualiza listas locais para os renderizadores antigos
+            window.orders = orders.map(o => ({
+                id: o.id.slice(-6).toUpperCase(),
+                customer: o.clientName || 'Cliente',
+                avatar: '👤',
+                items: o.items?.map(i => `${i.name} x${i.qty}`).join(', ') || '',
+                total: o.total || 0,
+                time: o.createdAt ? new Date(o.createdAt.toDate()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '-',
+                status: o.status === 'pending' ? 'new' : o.status === 'preparing' ? 'preparing' : o.status === 'ready' ? 'ready' : o.status === 'delivered' ? 'delivered' : 'new',
+                statusLabel: (statusMap[o.status] || statusMap.pending).label
+            }));
+            renderOrders('active-orders', window.orders.filter(o=>o.status!=='delivered'));
+            renderOrders('all-orders', window.orders);
+        });
+
+    // Escuta produtos da loja
+    dbL.collection('products').where('storeId', '==', user.uid)
+        .onSnapshot((snap) => {
+            window.products = snap.docs.map(d => {
+                const p = d.data();
+                return {
+                    emoji: p.emoji || '📦',
+                    name: p.name || 'Produto',
+                    desc: p.desc || '',
+                    price: p.price || 0,
+                    stock: p.stock > 20 ? 'ok' : p.stock > 0 ? 'low' : 'out',
+                    stockLabel: p.stock > 0 ? (p.stock + ' un') : 'Esgotado'
+                };
+            });
+            renderProducts();
+        });
+
+    // Escuta avaliacoes da loja
+    dbL.collection('reviews').where('storeId', '==', user.uid).orderBy('createdAt','desc').limit(10)
+        .onSnapshot((snap) => {
+            window.reviews = snap.docs.map(d => {
+                const r = d.data();
+                return {
+                    name: r.clientName || 'Cliente',
+                    avatar: '👤',
+                    rating: r.rating || 5,
+                    text: r.text || '',
+                    time: r.createdAt ? new Date(r.createdAt.toDate()).toLocaleString('pt-BR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '-'
+                };
+            });
+            renderReviews();
+        });
+});
+
+function updateStoreStats(orders) {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    // Pedidos de hoje
+    const todayOrders = orders.filter(o => o.createdAt && o.createdAt.toDate() >= today);
+    const todayRevenue = todayOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    
+    // Pedidos do mes
+    const thisMonth = new Date();
+    thisMonth.setDate(1);
+    thisMonth.setHours(0,0,0,0);
+    const monthOrders = orders.filter(o => o.createdAt && o.createdAt.toDate() >= thisMonth);
+    const monthRevenue = monthOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    
+    // Clientes unicos
+    const uniqueClients = new Set(orders.map(o => o.clientId)).size;
+    
+    // Ticket medio
+    const avgTicket = orders.length > 0 ? orders.reduce((sum, o) => sum + (o.total || 0), 0) / orders.length : 0;
+    
+    // Atualiza DOM
+    const revHoje = document.getElementById('lojista-rev-hoje');
+    if (revHoje) revHoje.textContent = 'R$ ' + todayRevenue.toFixed(2).replace('.', ',');
+    
+    const pedHoje = document.getElementById('lojista-pedidos-hoje');
+    if (pedHoje) pedHoje.textContent = todayOrders.length;
+    
+    const revMes = document.getElementById('lojista-rev-mes');
+    if (revMes) revMes.textContent = 'R$ ' + monthRevenue.toFixed(0);
+    
+    const pedMes = document.getElementById('lojista-pedidos-mes');
+    if (pedMes) pedMes.textContent = monthOrders.length;
+    
+    const clientes = document.getElementById('lojista-clientes');
+    if (clientes) clientes.textContent = uniqueClients;
+    
+    const ticket = document.getElementById('lojista-ticket');
+    if (ticket) ticket.textContent = 'R$ ' + avgTicket.toFixed(0);
+    
+    const aprovacao = document.getElementById('lojista-aprovacao');
+    if (aprovacao) {
+        const delivered = orders.filter(o => o.status === 'delivered').length;
+        const total = orders.length;
+        const pct = total > 0 ? Math.round((delivered / total) * 100) : 0;
+        aprovacao.textContent = pct + '%';
+    }
+    const activeCount = document.getElementById('lojista-active-count');
+    if (activeCount) activeCount.textContent = orders.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').length;
+    const chartTotal = document.getElementById('lojista-chart-total');
+    if (chartTotal) chartTotal.textContent = 'R$ ' + todayRevenue.toFixed(0);
+    const retorno = document.getElementById('lojista-retorno');
+    if (retorno) {
+        const ret = uniqueClients > 0 ? Math.min(100, Math.round((orders.length / uniqueClients) * 10)) : 0;
+        retorno.textContent = ret + '%';
+    }
+    // Atualiza avaliacao media
+    const avalEl = document.getElementById('lojista-avaliacao');
+    if (avalEl) {
+        const ratings = orders.map(o => o.rating || 0).filter(r => r > 0);
+        const avg = ratings.length > 0 ? (ratings.reduce((a,b)=>a+b,0)/ratings.length) : 0;
+        avalEl.textContent = avg.toFixed(1);
+    }
+}
+
+function renderRealtimeOrders(orders) {
+    const container = document.getElementById('orders-list');
+    if (!container) return;
+    if (orders.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-3)">
+            <div style="font-size:2.5rem;margin-bottom:12px">📭</div>
+            <p>Nenhum pedido ainda</p>
+        </div>`;
+        return;
+    }
+    const statusMap = {
+        pending: { label: 'Novo', class: 'status-new' },
+        accepted: { label: 'Aceito', class: 'status-accepted' },
+        preparing: { label: 'Preparando', class: 'status-preparing' },
+        ready: { label: 'Pronto', class: 'status-ready' },
+        in_transit: { label: 'Entrega', class: 'status-delivery' },
+        delivered: { label: 'Entregue', class: 'status-done' },
+        cancelled: { label: 'Cancelado', class: 'status-cancelled' }
+    };
+    container.innerHTML = orders.map(o => {
+        const s = statusMap[o.status] || statusMap.pending;
+        const items = o.items?.map(i => `${i.emoji} ${i.name} x${i.qty}`).join(', ') || '';
+        return `<div class="order-card">
+            <div class="order-top">
+                <div><strong>#${o.id.slice(-6).toUpperCase()}</strong> <span class="order-status ${s.class}">${s.label}</span></div>
+                <div style="font-size:.78rem;color:var(--text-3)">${o.clientName || 'Cliente'} • ${o.clientAddress || ''}</div>
+            </div>
+            <div style="font-size:.82rem;color:var(--text-2);margin:8px 0">${items}</div>
+            <div class="order-bottom">
+                <span>R$ ${(o.total || 0).toFixed(2).replace('.',',')}</span>
+                <div class="order-actions">
+                    ${o.status === 'pending' ? `<button class="btn-accept" onclick="updateOrderStatus('${o.id}','accepted')">Aceitar</button><button class="btn-reject" onclick="updateOrderStatus('${o.id}','cancelled')">Recusar</button>` : ''}
+                    ${o.status === 'accepted' ? `<button class="btn-accept" onclick="updateOrderStatus('${o.id}','preparing')">Preparar</button>` : ''}
+                    ${o.status === 'preparing' ? `<button class="btn-accept" onclick="updateOrderStatus('${o.id}','ready')">Pronto</button>` : ''}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+async function updateOrderStatus(orderId, status) {
+    await dbL.collection('orders').doc(orderId).update({
+        status: status,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast('Status atualizado!');
+}
+</script>
+</body>
+</html>
