@@ -1,0 +1,64 @@
+# Delivery Geral - Links Oficiais
+
+## Versao atual: v2
+
+### App Principal (Cliente)
+https://dudutz415-bit.github.io/delivery-geral/index.html?v=2
+
+### Painel Admin
+https://dudutz415-bit.github.io/delivery-geral/admin.html?v=2
+
+### Painel do Lojista
+https://dudutz415-bit.github.io/delivery-geral/lojista.html?v=2
+
+### Painel do Entregador
+https://dudutz415-bit.github.io/delivery-geral/entregador.html?v=2
+
+### Tutorial de Cadastro
+https://dudutz415-bit.github.io/delivery-geral/tutorial-cadastro.html?v=2
+
+### Política de Privacidade
+https://dudutz415-bit.github.io/delivery-geral/privacidade.html?v=2
+
+### Termos de Uso
+https://dudutz415-bit.github.io/delivery-geral/termos.html?v=2
+
+---
+
+## Como usar os links
+
+Sempre que atualizar o site, mude o numero no final:
+- v2 = versao atual
+- v3 = proxima atualizacao
+- v4 = proxima atualizacao
+- etc.
+
+Exemplo:
+```
+https://dudutz415-bit.github.io/delivery-geral/lojista.html?v=3
+```
+
+---
+
+## Dados para Play Store
+
+- **Email de suporte:** dudutz415@gmail.com
+- **Endereco:** Sao Paulo, SP
+- **CNPJ:** Em breve
+- **Link do app:** https://dudutz415-bit.github.io/delivery-geral/index.html?v=2
+- **Link Privacidade:** https://dudutz415-bit.github.io/delivery-geral/privacidade.html?v=2
+- **Link Termos:** https://dudutz415-bit.github.io/delivery-geral/termos.html?v=2
+
+---
+
+## Proximos passos para Play Store
+
+1. Criar conta de desenvolvedor Google ($25)
+2. Gerar APK com PWA Builder (https://www.pwabuilder.com)
+3. Preencher ficha do app na Play Store
+4. Usar os links acima nos campos de Privacidade e Termos
+5. Aguardar aprovacao da Google
+
+---
+
+Delivery Geral - Todos os direitos reservados
