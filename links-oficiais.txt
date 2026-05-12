@@ -1,42 +1,27 @@
 # Delivery Geral - Links Oficiais
 
-## Versao atual: v2
+## Versao atual: v6.1
 
 ### App Principal (Cliente)
-https://dudutz415-bit.github.io/delivery-geral/index.html?v=2
+https://dudutz415-bit.github.io/delivery-geral/index.html
 
 ### Painel Admin
-https://dudutz415-bit.github.io/delivery-geral/admin.html?v=2
+https://dudutz415-bit.github.io/delivery-geral/admin.html
 
 ### Painel do Lojista
-https://dudutz415-bit.github.io/delivery-geral/lojista.html?v=2
+https://dudutz415-bit.github.io/delivery-geral/lojista.html
 
 ### Painel do Entregador
-https://dudutz415-bit.github.io/delivery-geral/entregador.html?v=2
+https://dudutz415-bit.github.io/delivery-geral/entregador.html
 
 ### Tutorial de Cadastro
-https://dudutz415-bit.github.io/delivery-geral/tutorial-cadastro.html?v=2
+https://dudutz415-bit.github.io/delivery-geral/tutorial-cadastro.html
 
-### Política de Privacidade
-https://dudutz415-bit.github.io/delivery-geral/privacidade.html?v=2
+### Politica de Privacidade
+https://dudutz415-bit.github.io/delivery-geral/privacidade.html
 
 ### Termos de Uso
-https://dudutz415-bit.github.io/delivery-geral/termos.html?v=2
-
----
-
-## Como usar os links
-
-Sempre que atualizar o site, mude o numero no final:
-- v2 = versao atual
-- v3 = proxima atualizacao
-- v4 = proxima atualizacao
-- etc.
-
-Exemplo:
-```
-https://dudutz415-bit.github.io/delivery-geral/lojista.html?v=3
-```
+https://dudutz415-bit.github.io/delivery-geral/termos.html
 
 ---
 
@@ -45,9 +30,9 @@ https://dudutz415-bit.github.io/delivery-geral/lojista.html?v=3
 - **Email de suporte:** dudutz415@gmail.com
 - **Endereco:** Sao Paulo, SP
 - **CNPJ:** Em breve
-- **Link do app:** https://dudutz415-bit.github.io/delivery-geral/index.html?v=2
-- **Link Privacidade:** https://dudutz415-bit.github.io/delivery-geral/privacidade.html?v=2
-- **Link Termos:** https://dudutz415-bit.github.io/delivery-geral/termos.html?v=2
+- **Link do app:** https://dudutz415-bit.github.io/delivery-geral/index.html
+- **Link Privacidade:** https://dudutz415-bit.github.io/delivery-geral/privacidade.html
+- **Link Termos:** https://dudutz415-bit.github.io/delivery-geral/termos.html
 
 ---
 

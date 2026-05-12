@@ -2,8 +2,10 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <!-- v6.1 - Modal adicionar produto funcionando -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery Geral - Painel do Lojista</title>
+    <!-- Cache bust: v6.1 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -279,7 +281,7 @@ select.ob-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
         </div>
         <div class="h-right">
             <button class="h-btn" onclick="showTab('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button>
-            <button class="h-btn" onclick="showTab('config')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+            <button class="h-btn" onclick="openSettingsModalL()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
         </div>
     </div>
 
@@ -1113,6 +1115,65 @@ async function updateOrderStatus(orderId, status) {
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     showToast('Status atualizado!');
+}
+
+// ===== MODAL SYSTEM =====
+let modalOverlayL = null;
+
+function showModalL(title, content) {
+    closeModalL();
+    modalOverlayL = document.createElement('div');
+    modalOverlayL.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;display:flex;justify-content:center;align-items:center;padding:20px';
+    modalOverlayL.innerHTML = `
+        <div style="background:var(--surface);border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:24px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                <h2 style="font-size:1.2rem;color:var(--text)">${title}</h2>
+                <button onclick="closeModalL()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-2)">&times;</button>
+            </div>
+            ${content}
+        </div>
+    `;
+    document.body.appendChild(modalOverlayL);
+}
+
+function closeModalL() {
+    if (modalOverlayL) {
+        modalOverlayL.remove();
+        modalOverlayL = null;
+    }
+}
+
+// ===== CONFIGURACOES MODAL =====
+function openSettingsModalL() {
+    showModalL('Configuracoes', `
+        <div style="margin-bottom:12px">
+            <div class="menu-item" onclick="closeModalL();showToast('Entrega e frete')" style="cursor:pointer">
+                <div class="mi-icon" style="background:var(--blue-bg)">🚚</div>
+                <div class="mi-text"><h4>Entrega e frete</h4><p>Raio, taxa, tempo estimado</p></div>
+                <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+            </div>
+            <div class="menu-item" onclick="closeModalL();showToast('Pagamentos')" style="cursor:pointer">
+                <div class="mi-icon" style="background:var(--green-bg)">💳</div>
+                <div class="mi-text"><h4>Formas de pagamento</h4><p>PIX, cartao, dinheiro</p></div>
+                <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+            </div>
+            <div class="menu-item" onclick="closeModalL();showToast('Promocoes')" style="cursor:pointer">
+                <div class="mi-icon" style="background:var(--yellow-bg)">🏷️</div>
+                <div class="mi-text"><h4>Promocoes e cupons</h4><p>Criar ofertas e descontos</p></div>
+                <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+            </div>
+            <div class="menu-item" onclick="closeModalL();showToast('Equipe')" style="cursor:pointer">
+                <div class="mi-icon" style="background:var(--purple-bg)">👥</div>
+                <div class="mi-text"><h4>Equipe</h4><p>Gerenciar funcionarios</p></div>
+                <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+            </div>
+            <div class="menu-item" onclick="closeModalL();showToast('Suporte')" style="cursor:pointer">
+                <div class="mi-icon" style="background:var(--red-bg)">❓</div>
+                <div class="mi-text"><h4>Ajuda e Suporte</h4><p>FAQ, chat, telefone</p></div>
+                <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+            </div>
+        </div>
+    `);
 }
 </script>
     <!-- ===== MODAL EDITAR NICHO ===== -->

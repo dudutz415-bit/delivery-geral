@@ -2,8 +2,10 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <!-- v6.1 - Configuracoes funcionando -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery Geral - Painel do Entregador</title>
+    <!-- Cache bust: v6.1 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -1017,7 +1019,7 @@ body {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 <span class="notif-dot"></span>
             </button>
-            <button class="h-btn" onclick="showTab('perfil')">
+            <button class="h-btn" onclick="openSettingsModal()">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             </button>
         </div>
@@ -1372,6 +1374,9 @@ body {
 </div>
 
 <script>
+// === MODAL VARIABLE (declarada no topo para evitar erro) ===
+let modalOverlay = null;
+
 // === NAVIGATION ===
 function showTab(tab) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1792,6 +1797,33 @@ function loadDriverStats(driverId) {
 }
 
 // ===== CONFIGURACOES =====
+function openSettingsModal() {
+    showModal('Configuracoes', `
+        <div style="margin-bottom:12px">
+            <div class="menu-item" onclick="closeModal();openRoutePrefs();" style="cursor:pointer">
+                <div class="mi-icon" style="background:var(--blue-bg)">🗺️</div>
+                <div class="mi-text"><h4>Preferencias de rota</h4><p>Raio de entrega e areas</p></div>
+                <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+            </div>
+            <div class="menu-item" onclick="closeModal();openNotifications();" style="cursor:pointer">
+                <div class="mi-icon" style="background:var(--green-bg)">🔔</div>
+                <div class="mi-text"><h4>Notificacoes</h4><p>Alertas e sons</p></div>
+                <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+            </div>
+            <div class="menu-item" onclick="closeModal();openSupport();" style="cursor:pointer">
+                <div class="mi-icon" style="background:var(--yellow-bg)">❓</div>
+                <div class="mi-text"><h4>Ajuda e Suporte</h4><p>FAQ e contato</p></div>
+                <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+            </div>
+            <div class="menu-item" onclick="closeModal();openDocuments();" style="cursor:pointer">
+                <div class="mi-icon" style="background:var(--purple-bg)">📄</div>
+                <div class="mi-text"><h4>Meus documentos</h4><p>CNH e CRLV</p></div>
+                <span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+            </div>
+        </div>
+    `);
+}
+
 function openRoutePrefs() {
     showModal('Preferencias de Rota', `
         <div style="margin-bottom:16px">
@@ -1896,7 +1928,6 @@ function openDocuments() {
 }
 
 // ===== MODAL SYSTEM =====
-let modalOverlay = null;
 
 function showModal(title, content) {
     closeModal();
