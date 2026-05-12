@@ -1790,6 +1790,159 @@ function loadDriverStats(driverId) {
             if (streakEl) streakEl.textContent = Math.min(30, monthOrders.length) + '/30 dias';
         });
 }
+
+// ===== CONFIGURACOES =====
+function openRoutePrefs() {
+    showModal('Preferencias de Rota', `
+        <div style="margin-bottom:16px">
+            <label style="display:block;font-size:.85rem;color:var(--text-2);margin-bottom:6px">Raio maximo de entrega (km)</label>
+            <input type="range" min="1" max="20" value="5" id="route-radius" style="width:100%" oninput="document.getElementById('radius-val').textContent=this.value+' km'">
+            <div id="radius-val" style="text-align:center;font-weight:700;color:var(--primary)">5 km</div>
+        </div>
+        <div style="margin-bottom:16px">
+            <label style="display:block;font-size:.85rem;color:var(--text-2);margin-bottom:6px">Areas preferidas</label>
+            <textarea placeholder="Ex: Centro, Zona Sul, Bairro X" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);color:var(--text);font-family:inherit;font-size:.9rem;min-height:80px"></textarea>
+        </div>
+        <button onclick="saveRoutePrefs()" style="width:100%;padding:14px;background:var(--primary);color:white;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit">Salvar Preferencias</button>
+    `);
+}
+
+function saveRoutePrefs() {
+    showToast('Preferencias de rota salvas!');
+    closeModal();
+}
+
+function openNotifications() {
+    showModal('Notificacoes', `
+        <div style="margin-bottom:12px">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;background:var(--surface-2);border-radius:10px">
+                <input type="checkbox" checked style="width:20px;height:20px">
+                <span>Novo pedido disponivel</span>
+            </label>
+        </div>
+        <div style="margin-bottom:12px">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;background:var(--surface-2);border-radius:10px">
+                <input type="checkbox" checked style="width:20px;height:20px">
+                <span>Pedido cancelado pelo cliente</span>
+            </label>
+        </div>
+        <div style="margin-bottom:12px">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;background:var(--surface-2);border-radius:10px">
+                <input type="checkbox" checked style="width:20px;height:20px">
+                <span>Pagamento recebido</span>
+            </label>
+        </div>
+        <div style="margin-bottom:16px">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;background:var(--surface-2);border-radius:10px">
+                <input type="checkbox" style="width:20px;height:20px">
+                <span>Vibrar ao receber pedido</span>
+            </label>
+        </div>
+        <button onclick="saveNotifications()" style="width:100%;padding:14px;background:var(--primary);color:white;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit">Salvar Notificacoes</button>
+    `);
+}
+
+function saveNotifications() {
+    showToast('Notificacoes configuradas!');
+    closeModal();
+}
+
+function openSupport() {
+    showModal('Ajuda e Suporte', `
+        <div style="margin-bottom:16px">
+            <h3 style="color:var(--primary);margin-bottom:8px">Perguntas Frequentes</h3>
+            <div style="background:var(--surface-2);padding:12px;border-radius:10px;margin-bottom:8px">
+                <strong>Como recebo meu pagamento?</strong>
+                <p style="font-size:0.85rem;color:var(--text-2);margin-top:4px">O pagamento e feito via PIX semanalmente para a chave cadastrada.</p>
+            </div>
+            <div style="background:var(--surface-2);padding:12px;border-radius:10px;margin-bottom:8px">
+                <strong>Posso recusar entregas?</strong>
+                <p style="font-size:0.85rem;color:var(--text-2);margin-top:4px">Sim, mas taxas de aceitacao baixas podem afetar sua visibilidade.</p>
+            </div>
+            <div style="background:var(--surface-2);padding:12px;border-radius:10px">
+                <strong>O que fazer se o cliente nao estiver?</strong>
+                <p style="font-size:0.85rem;color:var(--text-2);margin-top:4px">Aguarde 10 minutos, tire uma foto e entre em contato com o suporte.</p>
+            </div>
+        </div>
+        <div style="margin-bottom:16px">
+            <h3 style="color:var(--primary);margin-bottom:8px">Falar com Suporte</h3>
+            <p style="font-size:0.9rem;color:var(--text-2);margin-bottom:8px">Email: dudutz415@gmail.com</p>
+            <button onclick="showToast('Abrindo WhatsApp...')" style="width:100%;padding:14px;background:var(--green);color:white;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit">💬 WhatsApp</button>
+        </div>
+    `);
+}
+
+function openDocuments() {
+    showModal('Meus Documentos', `
+        <div style="margin-bottom:16px">
+            <div style="background:var(--surface-2);padding:16px;border-radius:10px;margin-bottom:12px;text-align:center">
+                <div style="font-size:3rem;margin-bottom:8px">📄</div>
+                <p style="color:var(--text-2)">CNH</p>
+                <span style="display:inline-block;background:var(--yellow-bg);color:var(--yellow);padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:700;margin-top:8px">Pendente</span>
+            </div>
+            <div style="background:var(--surface-2);padding:16px;border-radius:10px;margin-bottom:12px;text-align:center">
+                <div style="font-size:3rem;margin-bottom:8px">📋</div>
+                <p style="color:var(--text-2)">CRLV (Documento do Veiculo)</p>
+                <span style="display:inline-block;background:var(--yellow-bg);color:var(--yellow);padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:700;margin-top:8px">Pendente</span>
+            </div>
+            <div style="background:var(--surface-2);padding:16px;border-radius:10px;text-align:center">
+                <div style="font-size:3rem;margin-bottom:8px">🆔</div>
+                <p style="color:var(--text-2)">Comprovante de Residencia</p>
+                <span style="display:inline-block;background:var(--yellow-bg);color:var(--yellow);padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:700;margin-top:8px">Pendente</span>
+            </div>
+        </div>
+        <button onclick="showToast('Upload de documentos em breve!')" style="width:100%;padding:14px;background:var(--primary);color:white;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit">📤 Enviar Documentos</button>
+    `);
+}
+
+// ===== MODAL SYSTEM =====
+let modalOverlay = null;
+
+function showModal(title, content) {
+    closeModal();
+    modalOverlay = document.createElement('div');
+    modalOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;display:flex;justify-content:center;align-items:center;padding:20px';
+    modalOverlay.innerHTML = `
+        <div style="background:var(--surface);border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:24px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                <h2 style="font-size:1.2rem;color:var(--text)">${title}</h2>
+                <button onclick="closeModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-2)">&times;</button>
+            </div>
+            ${content}
+        </div>
+    `;
+    document.body.appendChild(modalOverlay);
+}
+
+function closeModal() {
+    if (modalOverlay) {
+        modalOverlay.remove();
+        modalOverlay = null;
+    }
+}
+
+// Close modal on backdrop click
+window.addEventListener('click', function(e) {
+    if (e.target === modalOverlay) closeModal();
+});
+
+// ===== UPDATE CONFIG BUTTONS =====
+document.addEventListener('DOMContentLoaded', function() {
+    // Update config buttons in profile tab
+    const configItems = document.querySelectorAll('#tab-perfil .menu-item');
+    configItems.forEach(item => {
+        const text = item.textContent;
+        if (text.includes('Preferencias de rota')) {
+            item.onclick = openRoutePrefs;
+        } else if (text.includes('Notificacoes')) {
+            item.onclick = openNotifications;
+        } else if (text.includes('Ajuda e Suporte')) {
+            item.onclick = openSupport;
+        } else if (text.includes('Meus documentos')) {
+            item.onclick = openDocuments;
+        }
+    });
+});
 </script>
 
 </body>

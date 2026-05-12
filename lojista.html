@@ -399,7 +399,8 @@ select.ob-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
         <div class="section">
             <div class="section-title">Dados da Loja</div>
             <div class="menu-group">
-                <div class="menu-item"><div class="mi-icon" style="background:var(--primary-glow)"><span id="cfg-emoji">🛒</span></div><div class="mi-text"><h4 id="cfg-store-name">Minha Loja</h4><p>Nome da loja</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item" onclick="openEditNicheModal()"><div class="mi-icon" style="background:var(--primary-glow)"><span id="cfg-emoji">🛒</span></div><div class="mi-text"><h4 id="cfg-store-name">Minha Loja</h4><p>Nome da loja</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                <div class="menu-item" onclick="openEditNicheModal()"><div class="mi-icon" style="background:var(--red-bg)">🏷️</div><div class="mi-text"><h4 id="cfg-niche">Nao cadastrado</h4><p>Nicho/Categoria</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
                 <div class="menu-item"><div class="mi-icon" style="background:var(--green-bg)">📍</div><div class="mi-text"><h4 id="cfg-address">Nao cadastrado</h4><p>Endereco da loja</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
                 <div class="menu-item"><div class="mi-icon" style="background:var(--blue-bg)">📱</div><div class="mi-text"><h4 id="cfg-phone">Nao cadastrado</h4><p>Telefone</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
                 <div class="menu-item"><div class="mi-icon" style="background:var(--yellow-bg)">🕐</div><div class="mi-text"><h4 id="cfg-hours">Nao cadastrado</h4><p>Horario de funcionamento</p></div><span class="mi-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
@@ -1114,5 +1115,70 @@ async function updateOrderStatus(orderId, status) {
     showToast('Status atualizado!');
 }
 </script>
+    <!-- ===== MODAL EDITAR NICHO ===== -->
+    <div id="modal-edit-niche" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;justify-content:center;align-items:center;padding:20px">
+        <div style="background:var(--surface);border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:24px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                <h2 style="font-size:1.2rem;color:var(--text)">Editar Nicho/Categoria</h2>
+                <button onclick="closeEditNicheModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-2)">&times;</button>
+            </div>
+            <form id="form-edit-niche" onsubmit="saveNiche(event)">
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:.85rem;color:var(--text-2);margin-bottom:6px">Selecione o nicho *</label>
+                    <select id="edit-niche-select" required style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);color:var(--text);font-family:inherit;font-size:.9rem">
+                        <option value="">Escolha uma categoria</option>
+                        <option value="supermarket">🛒 Supermercado</option>
+                        <option value="restaurant">🍽️ Restaurante</option>
+                        <option value="pharmacy">💊 Farmacia</option>
+                        <option value="petshop">🐾 Pet Shop</option>
+                        <option value="bakery">🥐 Padaria</option>
+                        <option value="butcher">🥩 Acougue</option>
+                        <option value="greengrocer">🥬 Hortifruti</option>
+                        <option value="beverages">🍷 Bebidas</option>
+                        <option value="electronics">📱 Eletronicos</option>
+                        <option value="fashion">👗 Moda</option>
+                        <option value="books">📚 Livraria</option>
+                        <option value="flowers">💐 Floricultura</option>
+                        <option value="toys">🧸 Brinquedos</option>
+                        <option value="sports">⚽ Esportes</option>
+                        <option value="cosmetics">💄 Cosmeticos</option>
+                        <option value="hardware">🔧 Ferragens</option>
+                        <option value="office">📝 Papelaria</option>
+                        <option value="furniture">🛋️ Moveis</option>
+                        <option value="health">🌿 Saude Natural</option>
+                        <option value="cleaning">🧹 Limpeza</option>
+                        <option value="baby">🍼 Bebe</option>
+                        <option value="autoparts">🚗 Auto Pecas</option>
+                        <option value="fishing">🎣 Pesca</option>
+                        <option value="garden">🌻 Jardinagem</option>
+                        <option value="music">🎸 Instrumentos</option>
+                        <option value="games">🎮 Games</option>
+                        <option value="gourmet">🧀 Gourmet</option>
+                        <option value="sweets">🍰 Doces</option>
+                        <option value="organic">🥗 Organicos</option>
+                        <option value="frozen">🧊 Congelados</option>
+                        <option value="asian">🍜 Mercado Asiatico</option>
+                        <option value="arabic">🧆 Mercado Arabe</option>
+                        <option value="italian">🍝 Mercado Italiano</option>
+                        <option value="mexican">🌮 Mercado Mexicano</option>
+                        <option value="indian">🍛 Mercado Indiano</option>
+                        <option value="japanese">🍣 Mercado Japones</option>
+                        <option value="convenience">🏪 Conveniencia</option>
+                        <option value="wholesale">📦 Atacado</option>
+                        <option value="wine">🍷 Vinhos</option>
+                        <option value="coffee">☕ Cafeteria</option>
+                        <option value="icecream">🍦 Sorveteria</option>
+                        <option value="pizza">🍕 Pizzaria</option>
+                        <option value="burger">🍔 Hamburgueria</option>
+                        <option value="sushi">🍱 Sushi</option>
+                        <option value="vegan">🥑 Vegano</option>
+                        <option value="fitness">💪 Fitness</option>
+                    </select>
+                </div>
+                <button type="submit" style="width:100%;padding:14px;background:var(--primary);color:white;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit">Salvar Nicho</button>
+            </form>
+        </div>
+    </div>
+
 </body>
 </html>
