@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerar Icones PNG - Delivery Geral</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        canvas { border: 1px solid #ddd; margin: 10px 0; display: block; }
+        button { background: #FF4D00; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; cursor: pointer; margin: 10px 0; }
+        button:hover { background: #e04400; }
+        .icon-preview { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .icon-item { text-align: center; }
+        a { color: #FF4D00; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gerar Icones PNG - Delivery Geral</h1>
+        <p>Clique nos botoes abaixo para gerar e baixar os icones:</p>
+        
+        <div class="icon-preview">
+            <div class="icon-item">
+                <canvas id="canvas192" width="192" height="192"></canvas>
+                <button onclick="downloadIcon(192)">Baixar icon-192.png</button>
+            </div>
+            <div class="icon-item">
+                <canvas id="canvas512" width="512" height="512"></canvas>
+                <button onclick="downloadIcon(512)">Baixar icon-512.png</button>
+            </div>
+        </div>
+        
+        <h2>Instrucoes:</h2>
+        <ol>
+            <li>Clique em "Baixar icon-192.png"</li>
+            <li>Clique em "Baixar icon-512.png"</li>
+            <li>Coloque os 2 arquivos na pasta do projeto</li>
+            <li>Atualize o manifest.json</li>
+        </ol>
+    </div>
+
+    <script>
+        function drawIcon(size) {
+            const canvas = document.getElementById('canvas' + size);
+            const ctx = canvas.getContext('2d');
+            const center = size / 2;
+            const radius = size * 0.4;
+            
+            // Fundo laranja
+            ctx.fillStyle = '#FF4D00';
+            ctx.beginPath();
+            ctx.arc(center, center, radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Hexagono branco
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            const hexRadius = size * 0.22;
+            for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI / 3) * i - Math.PI / 6;
+                const x = center + hexRadius * Math.cos(angle);
+                const y = center + hexRadius * Math.sin(angle);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fill();
+            
+            // Circulo laranja no centro
+            ctx.fillStyle = '#FF4D00';
+            ctx.beginPath();
+            ctx.arc(center, center, size * 0.08, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Texto "DG" para icones maiores
+            if (size >= 512) {
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = `bold ${size * 0.15}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('DG', center, center + radius + size * 0.12);
+            }
+        }
+        
+        function downloadIcon(size) {
+            const canvas = document.getElementById('canvas' + size);
+            const link = document.createElement('a');
+            link.download = 'icon-' + size + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // Desenhar icones ao carregar
+        drawIcon(192);
+        drawIcon(512);
+    </script>
+</body>
+</html>
