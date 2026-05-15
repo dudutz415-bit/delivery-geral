@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-<!-- v6.4 - Firebase produtos -->
+    <!-- v6.1 - Modal adicionar produto funcionando -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery Geral - Painel do Lojista</title>
     <!-- Cache bust: v6.1 -->
@@ -623,7 +623,7 @@ function saveProduct(e) {
     
     // Salvar no Firestore
     const storeId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'default-store';
-    db.collection('stores').doc(storeId).set({
+    dbL.collection('stores').doc(storeId).set({
         products: firebase.firestore.FieldValue.arrayUnion(newProduct)
     }, { merge: true }).catch(err => console.error('Erro ao salvar produto:', err));
 }
