@@ -622,7 +622,7 @@ function saveProduct(e) {
     showToast('Produto adicionado com sucesso!');
     
     // Salvar no Firestore
-    const storeId = auth.currentUser ? auth.currentUser.uid : 'default-store';
+    const storeId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'default-store';
     db.collection('stores').doc(storeId).set({
         products: firebase.firestore.FieldValue.arrayUnion(newProduct)
     }, { merge: true }).catch(err => console.error('Erro ao salvar produto:', err));
