@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <!-- v6.2 - Firebase e configuracoes -->
+    <!-- v6.1 - Modal adicionar produto funcionando -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery Geral - Painel do Lojista</title>
     <!-- Cache bust: v6.1 -->
@@ -621,10 +621,11 @@ function saveProduct(e) {
     closeAddProductModal();
     showToast('Produto adicionado com sucesso!');
     
-    // TODO: Salvar no Firestore quando integrar
-    // db.collection('stores').doc(storeId).update({
-    //     products: firebase.firestore.FieldValue.arrayUnion(newProduct)
-    // });
+    // Salvar no Firestore
+    const storeId = auth.currentUser ? auth.currentUser.uid : 'default-store';
+    db.collection('stores').doc(storeId).set({
+        products: firebase.firestore.FieldValue.arrayUnion(newProduct)
+    }, { merge: true }).catch(err => console.error('Erro ao salvar produto:', err));
 }
 
 // === CHART ===
