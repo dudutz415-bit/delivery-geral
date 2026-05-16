@@ -623,9 +623,8 @@ function saveProduct(e) {
     
     // Salvar no Firestore
     const storeId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'default-store';
-    dbL.collection('stores').doc(storeId).set({
-        products: firebase.firestore.FieldValue.arrayUnion(newProduct)
-    }, { merge: true }).catch(err => console.error('Erro ao salvar produto:', err));
+    dbL.collection('products').add(newProduct)
+      
 }
 
 // === CHART ===
