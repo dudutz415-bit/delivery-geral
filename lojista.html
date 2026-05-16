@@ -621,11 +621,15 @@ function saveProduct(e) {
     closeAddProductModal();
     showToast('Produto adicionado com sucesso!');
     
-    // Salvar no Firestore
+      // Salvar no Firestore - forma simples (um documento por produto)
     const storeId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'default-store';
+    newProduct.storeId = storeId;
+    newProduct.createdAt = new Date().toISOString();
+    
     dbL.collection('products').add(newProduct)
-      
-}
+        .then(() => console.log('Produto salvo!'))
+        .catch(err => console.error('Erro ao salvar:', err));
+
 
 // === CHART ===
 let weekSales = [];
