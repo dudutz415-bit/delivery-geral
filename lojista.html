@@ -629,6 +629,8 @@ function saveProduct(e) {
     dbL.collection('products').add(newProduct)
         .then(() => console.log('Produto salvo!'))
         .catch(err => console.error('Erro ao salvar:', err));
+}
+
 
 
 // === CHART ===
