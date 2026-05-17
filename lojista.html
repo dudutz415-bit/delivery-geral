@@ -2,16 +2,17 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <!-- v7.1 - Editar e excluir produtos -->
+    <!-- v7.3 - Layout dos produtos organizado -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery Geral - Painel do Lojista</title>
-    <!-- Cache bust: v7.1 -->
+    <!-- Cache bust: v7.3 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
     <style>
 :root {
     --primary: #FF4D00;
@@ -377,6 +378,13 @@ select.ob-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
                     <label style="display:block;font-size:.85rem;color:var(--text-2);margin-bottom:6px">Emoji</label>
                     <input type="text" id="prod-emoji" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);color:var(--text);font-family:inherit;font-size:.9rem" placeholder="Ex: 🍚" maxlength="2">
                 </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:.85rem;color:var(--text-2);margin-bottom:6px">Foto do produto</label>
+                    <input type="file" id="prod-image" accept="image/*" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);color:var(--text);font-family:inherit;font-size:.9rem" onchange="previewImage(this)">
+                    <div id="image-preview" style="margin-top:8px;display:none">
+                        <img id="preview-img" style="max-width:100%;max-height:150px;border-radius:8px;object-fit:cover">
+                    </div>
+                </div>
                 <div style="margin-bottom:20px">
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.9rem;color:var(--text)">
                         <input type="checkbox" id="prod-popular" style="width:18px;height:18px">
@@ -601,16 +609,28 @@ function renderProducts() {
         return;
     }
     document.getElementById('products-list').innerHTML = products.map(p => `
-        <div class="prod-card" style="position:relative">
-            <div style="position:absolute;top:8px;right:8px;display:flex;gap:6px">
-                <button onclick="editProduct('${p.id}')" style="background:var(--blue-bg);border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;color:var(--blue)">✏️ Editar</button>
-                <button onclick="deleteProduct('${p.id}')" style="background:var(--red-bg);border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;color:var(--red)">🗑️ Excluir</button>
+        <div class="prod-card" style="display:flex;gap:12px;padding:12px;align-items:flex-start">
+            <div style="width:80px;height:80px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--surface-2)">
+                ${p.imageUrl 
+                    ? `<img src="${p.imageUrl}" style="width:100%;height:100%;object-fit:cover" alt="${p.name}">` 
+                    : `<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem">${p.emoji || '📦'}</div>`
+                }
             </div>
-            <div class="prod-emoji">${p.emoji || '📦'}</div>
-            <div class="prod-info"><h4>${p.name}</h4><p>${p.desc}</p></div>
-            <div style="text-align:right">
-                <div class="prod-price">R$ ${p.price.toFixed(2).replace('.',',')}</div>
-                <div class="prod-stock ${p.stock || 'in'}">${p.stockLabel || 'Em estoque'}</div>
+            <div style="flex:1;min-width:0">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+                    <div style="min-width:0">
+                        <h4 style="margin:0;font-size:1rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</h4>
+                        <p style="margin:4px 0 0;font-size:.8rem;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.desc}</p>
+                    </div>
+                    <div style="text-align:right;flex-shrink:0">
+                        <div style="font-size:1.1rem;font-weight:700;color:var(--primary)">R$ ${p.price.toFixed(2).replace('.',',')}</div>
+                        <div style="font-size:.75rem;color:var(--green);margin-top:2px">${p.stockLabel || 'Em estoque'}</div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:10px">
+                    <button onclick="editProduct('${p.id}')" style="background:var(--blue-bg);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--blue);font-weight:500">✏️ Editar</button>
+                    <button onclick="deleteProduct('${p.id}')" style="background:var(--red-bg);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--red);font-weight:500">🗑️ Excluir</button>
+                </div>
             </div>
         </div>
     `).join('');
@@ -624,6 +644,54 @@ function openAddProductModal() {
 function closeAddProductModal() {
     document.getElementById('modal-add-product').style.display = 'none';
     document.getElementById('form-add-product').reset();
+    document.getElementById('image-preview').style.display = 'none';
+    document.getElementById('preview-img').src = '';
+    delete document.getElementById('form-add-product').dataset.editId;
+    const btn = document.querySelector('#form-add-product button[type="submit"]');
+    if (btn) btn.textContent = 'Salvar Produto';
+}
+
+// === PREVIEW DE IMAGEM ===
+function previewImage(input) {
+    const preview = document.getElementById('image-preview');
+    const img = document.getElementById('preview-img');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
+        img.src = '';
+    }
+}
+
+// === UPLOAD DE IMAGEM PARA FIREBASE STORAGE ===
+async function uploadImage(file) {
+    if (!file) return null;
+    
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        console.error('Usuario nao logado');
+        return null;
+    }
+    
+    try {
+        const storageRef = firebase.storage().ref();
+        const imageRef = storageRef.child(`products/${user.uid}/${Date.now()}_${file.name}`);
+        
+        await imageRef.put(file);
+        const url = await imageRef.getDownloadURL();
+        console.log('Imagem enviada:', url);
+        return url;
+    } catch (err) {
+        console.error('Erro ao fazer upload da imagem:', err);
+        showToast('Erro ao enviar imagem. Tente novamente.');
+        return null;
+    }
 }
 
 // === EDITAR PRODUTO ===
@@ -662,7 +730,7 @@ function deleteProduct(productId) {
         .catch(err => console.error('Erro ao excluir:', err));
 }
 
-function saveProduct(e) {
+async function saveProduct(e) {
     e.preventDefault();
     
     const name = document.getElementById('prod-name').value.trim();
@@ -670,6 +738,7 @@ function saveProduct(e) {
     const price = parseFloat(document.getElementById('prod-price').value);
     const emoji = document.getElementById('prod-emoji').value.trim() || '📦';
     const popular = document.getElementById('prod-popular').checked;
+    const imageFile = document.getElementById('prod-image').files[0];
     
     if (!name || !desc || isNaN(price) || price < 0) {
         showToast('Preencha todos os campos obrigatorios');
@@ -679,30 +748,41 @@ function saveProduct(e) {
     const form = document.getElementById('form-add-product');
     const editId = form.dataset.editId;
     
+    // Fazer upload da imagem se houver
+    let imageUrl = null;
+    if (imageFile) {
+        showToast('Enviando imagem...');
+        imageUrl = await uploadImage(imageFile);
+    }
+    
     if (editId) {
         // EDITAR PRODUTO EXISTENTE
         const productIndex = products.findIndex(p => p.id === editId);
         if (productIndex >= 0) {
-            products[productIndex] = {
-                ...products[productIndex],
+            const updates = {
                 name: name,
                 desc: desc,
                 price: price,
                 emoji: emoji,
                 popular: popular
             };
+            
+            if (imageUrl) {
+                updates.imageUrl = imageUrl;
+                updates.hasImage = true;
+            }
+            
+            products[productIndex] = {
+                ...products[productIndex],
+                ...updates
+            };
             renderProducts();
             showToast('Produto atualizado!');
             
             // Atualizar no Firebase
-            dbL.collection('products').doc(editId).update({
-                name: name,
-                desc: desc,
-                price: price,
-                emoji: emoji,
-                popular: popular
-            }).then(() => console.log('Produto atualizado no Firebase'))
-              .catch(err => console.error('Erro ao atualizar:', err));
+            dbL.collection('products').doc(editId).update(updates)
+                .then(() => console.log('Produto atualizado no Firebase'))
+                .catch(err => console.error('Erro ao atualizar:', err));
         }
         delete form.dataset.editId;
         const btn = form.querySelector('button[type="submit"]');
@@ -717,7 +797,9 @@ function saveProduct(e) {
             emoji: emoji,
             popular: popular,
             stock: 'in',
-            stockLabel: 'Em estoque'
+            stockLabel: 'Em estoque',
+            imageUrl: imageUrl,
+            hasImage: !!imageUrl
         };
         
         products.push(newProduct);
