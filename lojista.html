@@ -5,7 +5,7 @@
     <!-- v7.0 - Firebase 100% funcional -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery Geral - Painel do Lojista</title>
-    <!-- Cache bust: v6.5 -->
+    <!-- Cache bust: v7.0 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -558,6 +558,37 @@ function renderOrders(containerId, list) {
 // === PRODUCTS ===
 let products = [];
 
+// Carregar produtos do Firebase ao iniciar
+async function loadProducts() {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        console.log('Usuário não logado, não carrega produtos');
+        return;
+    }
+    
+    try {
+        const snapshot = await dbL.collection('products')
+            .where('storeId', '==', user.uid)
+            .orderBy('createdAt', 'desc')
+            .get();
+        
+        products = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+        
+        console.log('Produtos carregados:', products.length);
+        renderProducts();
+    } catch (err) {
+        console.error('Erro ao carregar produtos:', err);
+        // Se der erro (ex: índice não existe), mostra mensagem
+        if (err.message && err.message.includes('index')) {
+            console.warn('Índice do Firestore não encontrado. Crie no Firebase Console.');
+        }
+        renderProducts();
+    }
+}
+
 function renderProducts() {
     if (products.length === 0) {
         document.getElementById('products-list').innerHTML = `
@@ -621,7 +652,7 @@ function saveProduct(e) {
     closeAddProductModal();
     showToast('Produto adicionado com sucesso!');
     
-      // Salvar no Firestore - forma simples (um documento por produto)
+    // Salvar no Firestore - forma simples (um documento por produto)
     const storeId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'default-store';
     newProduct.storeId = storeId;
     newProduct.createdAt = new Date().toISOString();
@@ -630,8 +661,6 @@ function saveProduct(e) {
         .then(() => console.log('Produto salvo!'))
         .catch(err => console.error('Erro ao salvar:', err));
 }
-
-
 
 // === CHART ===
 let weekSales = [];
@@ -976,21 +1005,26 @@ authL.onAuthStateChanged(async (user) => {
             renderOrders('all-orders', window.orders);
         });
 
-    // Escuta produtos da loja
+    // Escuta produtos da loja em tempo real
     dbL.collection('products').where('storeId', '==', user.uid)
         .onSnapshot((snap) => {
-            window.products = snap.docs.map(d => {
+            products = snap.docs.map(d => {
                 const p = d.data();
                 return {
+                    id: d.id,
                     emoji: p.emoji || '📦',
                     name: p.name || 'Produto',
                     desc: p.desc || '',
                     price: p.price || 0,
-                    stock: p.stock > 20 ? 'ok' : p.stock > 0 ? 'low' : 'out',
-                    stockLabel: p.stock > 0 ? (p.stock + ' un') : 'Esgotado'
+                    popular: p.popular || false,
+                    stock: p.stock && p.stock !== 'in' ? p.stock : 'in',
+                    stockLabel: p.stockLabel || 'Em estoque'
                 };
             });
+            console.log('Produtos atualizados em tempo real:', products.length);
             renderProducts();
+        }, (err) => {
+            console.error('Erro ao escutar produtos:', err);
         });
 
     // Escuta avaliacoes da loja
