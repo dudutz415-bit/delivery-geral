@@ -5,7 +5,7 @@
     <!-- v7.1 - Editar e excluir produtos -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery Geral - Painel do Lojista</title>
-    <!-- Cache bust: v7.0 -->
+    <!-- Cache bust: v7.1 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -601,7 +601,11 @@ function renderProducts() {
         return;
     }
     document.getElementById('products-list').innerHTML = products.map(p => `
-        <div class="prod-card">
+        <div class="prod-card" style="position:relative">
+            <div style="position:absolute;top:8px;right:8px;display:flex;gap:6px">
+                <button onclick="editProduct('${p.id}')" style="background:var(--blue-bg);border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;color:var(--blue)">✏️ Editar</button>
+                <button onclick="deleteProduct('${p.id}')" style="background:var(--red-bg);border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;color:var(--red)">🗑️ Excluir</button>
+            </div>
             <div class="prod-emoji">${p.emoji || '📦'}</div>
             <div class="prod-info"><h4>${p.name}</h4><p>${p.desc}</p></div>
             <div style="text-align:right">
@@ -622,6 +626,42 @@ function closeAddProductModal() {
     document.getElementById('form-add-product').reset();
 }
 
+// === EDITAR PRODUTO ===
+function editProduct(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    
+    document.getElementById('prod-name').value = product.name;
+    document.getElementById('prod-desc').value = product.desc;
+    document.getElementById('prod-price').value = product.price;
+    document.getElementById('prod-emoji').value = product.emoji || '📦';
+    document.getElementById('prod-popular').checked = product.popular || false;
+    
+    // Muda o botão para "Salvar Alterações"
+    const btn = document.querySelector('#form-add-product button[type="submit"]');
+    if (btn) btn.textContent = 'Salvar Alteracoes';
+    
+    // Adiciona ID do produto sendo editado
+    document.getElementById('form-add-product').dataset.editId = productId;
+    
+    openAddProductModal();
+}
+
+// === EXCLUIR PRODUTO ===
+function deleteProduct(productId) {
+    if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+    
+    // Remove do array local
+    products = products.filter(p => p.id !== productId);
+    renderProducts();
+    showToast('Produto excluido!');
+    
+    // Remove do Firebase
+    dbL.collection('products').doc(productId).delete()
+        .then(() => console.log('Produto excluido do Firebase'))
+        .catch(err => console.error('Erro ao excluir:', err));
+}
+
 function saveProduct(e) {
     e.preventDefault();
     
@@ -636,30 +676,65 @@ function saveProduct(e) {
         return;
     }
     
-    const newProduct = {
-        id: 'prod-' + Date.now(),
-        name: name,
-        desc: desc,
-        price: price,
-        emoji: emoji,
-        popular: popular,
-        stock: 'in',
-        stockLabel: 'Em estoque'
-    };
+    const form = document.getElementById('form-add-product');
+    const editId = form.dataset.editId;
     
-    products.push(newProduct);
-    renderProducts();
+    if (editId) {
+        // EDITAR PRODUTO EXISTENTE
+        const productIndex = products.findIndex(p => p.id === editId);
+        if (productIndex >= 0) {
+            products[productIndex] = {
+                ...products[productIndex],
+                name: name,
+                desc: desc,
+                price: price,
+                emoji: emoji,
+                popular: popular
+            };
+            renderProducts();
+            showToast('Produto atualizado!');
+            
+            // Atualizar no Firebase
+            dbL.collection('products').doc(editId).update({
+                name: name,
+                desc: desc,
+                price: price,
+                emoji: emoji,
+                popular: popular
+            }).then(() => console.log('Produto atualizado no Firebase'))
+              .catch(err => console.error('Erro ao atualizar:', err));
+        }
+        delete form.dataset.editId;
+        const btn = form.querySelector('button[type="submit"]');
+        if (btn) btn.textContent = 'Salvar Produto';
+    } else {
+        // CRIAR NOVO PRODUTO
+        const newProduct = {
+            id: 'prod-' + Date.now(),
+            name: name,
+            desc: desc,
+            price: price,
+            emoji: emoji,
+            popular: popular,
+            stock: 'in',
+            stockLabel: 'Em estoque'
+        };
+        
+        products.push(newProduct);
+        renderProducts();
+        showToast('Produto adicionado com sucesso!');
+        
+        // Salvar no Firestore
+        const storeId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'default-store';
+        newProduct.storeId = storeId;
+        newProduct.createdAt = new Date().toISOString();
+        
+        dbL.collection('products').add(newProduct)
+            .then(() => console.log('Produto salvo!'))
+            .catch(err => console.error('Erro ao salvar:', err));
+    }
+    
     closeAddProductModal();
-    showToast('Produto adicionado com sucesso!');
-    
-    // Salvar no Firestore - forma simples (um documento por produto)
-    const storeId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'default-store';
-    newProduct.storeId = storeId;
-    newProduct.createdAt = new Date().toISOString();
-    
-    dbL.collection('products').add(newProduct)
-        .then(() => console.log('Produto salvo!'))
-        .catch(err => console.error('Erro ao salvar:', err));
 }
 
 // === CHART ===
